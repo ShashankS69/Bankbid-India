@@ -44,8 +44,10 @@ export default function RegisterStats() {
 
   const sources = stats?.sources ?? [];
   const banks = stats?.banks ?? [];
+  const totals = stats?.totals ?? {};
   const sourceTotal = sources.reduce((sum, s) => sum + s.count, 0) || 1;
   const bankTotal = banks.reduce((sum, b) => sum + b.count, 0) || 1;
+  const totalsTotal = totals.total || 1;
 
   return (
     <aside className="w-64 shrink-0 hidden lg:flex flex-col gap-8 pt-1">
@@ -70,6 +72,14 @@ export default function RegisterStats() {
             muted={b.bank === "Others"}
           />
         ))}
+      </RegisterSection>
+
+      <RegisterSection title="Quick stats" loading={!stats}>
+        <StatRow label="Total properties in the lot" count={totals.total || 0} pct={(totals.total || 0) / totalsTotal} />
+        <StatRow label="Active listings" count={totals.active || 0} pct={(totals.active || 0) / totalsTotal} />
+        <StatRow label="Passed listings" count={totals.passed || 0} pct={(totals.passed || 0) / totalsTotal} />
+        <StatRow label="Listings with price" count={totals.priced || 0} pct={(totals.priced || 0) / totalsTotal} />
+        <StatRow label="Price on request properties" count={totals.price_on_request || 0} pct={(totals.price_on_request || 0) / totalsTotal} />
       </RegisterSection>
     </aside>
   );

@@ -4,30 +4,57 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-midnight: #071525;
+  --color-deepnavy: #0A1B2E;
+  --color-panelnavy: #0D2238;
+  --color-elevatednavy: #102A43;
+  --color-gold: #D6A84F;
+  --color-gold-warm: #E3B65A;
+  --color-maporange: #F28C28;
+  --color-ivory: #F2EEE5;
+  --color-softwhite: #D9DEE5;
+  --color-mutedslate: #8B98A8;
+  --color-dimslate: #5E6B7A;
+  --color-goldborder: #8E6A32;
+}
+
 html,
 body {
-  background-color: #0f1c2e;
-  color: #e7e2d3;
+  background-color: var(--color-midnight);
+  color: var(--color-softwhite);
 }
 
 ::selection {
-  background: #c9a24b;
-  color: #0f1c2e;
+  background: var(--color-gold);
+  color: var(--color-midnight);
 }
 
-/* Ledger paper texture on the page background */
+/* Architectural background SVG (subtle line-art, low opacity) */
 .ledger-bg {
-  background-color: #0f1c2e;
-  background-image:
-    repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(231, 226, 211, 0.035) 28px),
-    radial-gradient(ellipse at top left, rgba(201, 162, 75, 0.06), transparent 55%);
+  background-color: var(--color-midnight);
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.01) 0%, transparent 20%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 2000'>%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='0' y1='0' y2='1'%3E%3Cstop offset='0' stop-color='%238E6A32' stop-opacity='0.12'/%3E%3Cstop offset='1' stop-color='%238E6A32' stop-opacity='0.06'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg fill='none' stroke='%238E6A32' stroke-width='1' stroke-opacity='0.12' stroke-linecap='round'%3E%3Cpath d='M50 1800 L120 1500 L200 1700 L280 1450 L360 1600'/%3E%3Cpath d='M400 1600 L450 1400 L520 1550 L590 1300 L660 1500'/%3E%3Cpath d='M800 1800 L860 1500 L940 1700 L1020 1400 L1100 1600'/%3E%3Cpath d='M20 400 L80 300 L140 420 L200 260 L260 380'/%3E%3Cpath d='M320 200 L380 80 L440 180 L500 60 L560 150'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: cover;
 }
 
-/* Auction lot ticket card: perforated top edge via a dashed rule + punch-hole notches */
+/* Keep reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Refined lot ticket (property card) styling */
 .lot-ticket {
   position: relative;
-  background: #16273d;
-  border: 1px solid #233348;
+  background: var(--color-panelnavy);
+  border: 1px solid rgba(142,106,50,0.12); /* subtle gold border */
+  box-shadow: 0 6px 18px rgba(2,6,23,0.6);
 }
 
 .lot-ticket::before {
@@ -37,7 +64,7 @@ body {
   left: 0;
   right: 0;
   height: 1px;
-  background-image: linear-gradient(to right, #3a4d67 0 6px, transparent 6px 12px);
+  background-image: linear-gradient(to right, rgba(255,255,255,0.03) 0 6px, transparent 6px 12px);
   background-size: 12px 1px;
   background-repeat: repeat-x;
 }
@@ -49,73 +76,84 @@ body {
   width: 14px;
   height: 14px;
   border-radius: 9999px;
-  background: #0f1c2e;
-  border: 1px solid #233348;
+  background: var(--color-midnight);
+  border: 1px solid rgba(29,56,82,0.6);
 }
 
-.lot-ticket .lot-notch-l {
-  left: -7px;
-}
+.lot-ticket .lot-notch-l { left: -7px; }
+.lot-ticket .lot-notch-r { right: -7px; }
 
-.lot-ticket .lot-notch-r {
-  right: -7px;
-}
+.perf-divider { border-top: 1px solid rgba(23,48,71,0.6); margin-top: 0.6rem; margin-bottom: 0.6rem; }
 
-.perf-divider {
-  border-top: 1px dashed #2c3e56;
-}
+/* Typography tokens */
+.font-display { font-family: var(--font-cormorant), Georgia, serif; color: var(--color-ivory); }
+.font-body { font-family: var(--font-inter), system-ui, sans-serif; color: var(--color-softwhite); }
+.font-mono { font-family: var(--font-plex-mono), ui-monospace, monospace; color: var(--color-mutedslate); }
 
-/* Subtle focus ring that respects the palette */
-:focus-visible {
-  outline: 2px solid #c9a24b;
-  outline-offset: 2px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-  }
-}
+/* Focus ring */
+:focus-visible { outline: 2px solid rgba(214,168,79,0.14); outline-offset: 2px; }
 
 /* Leaflet Map Custom Styling */
 .leaflet-popup-content-wrapper,
 .leaflet-popup-tip {
-  background: #16273d !important;
-  color: #e7e2d3 !important;
-  border: 1px solid #233348 !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6) !important;
+  background: var(--color-panelnavy) !important;
+  color: var(--color-softwhite) !important;
+  border: 1px solid rgba(23,48,71,0.6) !important;
+  box-shadow: 0 6px 20px rgba(2,6,23,0.7) !important;
 }
 
-.leaflet-container {
-  background: #0f1c2e !important;
-  font-family: inherit !important;
+.leaflet-container { background: var(--color-midnight) !important; font-family: inherit !important; }
+
+.leaflet-bar a { background-color: var(--color-panelnavy) !important; color: var(--color-gold) !important; border-bottom: 1px solid rgba(23,48,71,0.6) !important; }
+.leaflet-bar a:hover { background-color: var(--color-elevatednavy) !important; color: var(--color-gold-warm) !important; }
+
+/* Map marker badge and pin override */
+.map-marker-badge { background: var(--color-gold); color: var(--color-midnight); border: 2px solid var(--color-midnight); }
+.leaflet-marker-icon { filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6)); }
+
+/* Quick-stats / Register section tweaks */
+.perf-divider { border-top-style: solid; }
+
+/* Inputs, selects, buttons — keep functionality but restyle for premium look */
+.lot-ticket input,
+.lot-ticket select,
+.lot-ticket textarea,
+input,
+select,
+textarea {
+  background: var(--color-elevatednavy);
+  border: 1px solid rgba(29,56,82,0.6);
+  color: var(--color-softwhite);
+  padding: 0.45rem 0.6rem;
+  border-radius: 0.35rem;
 }
 
-.leaflet-bar a {
-  background-color: #16273d !important;
-  color: #c9a24b !important;
-  border-bottom: 1px solid #233348 !important;
+input::placeholder, textarea::placeholder {
+  color: rgba(217,222,229,0.6);
 }
 
-.leaflet-bar a:hover {
-  background-color: #233348 !important;
-  color: #dfc280 !important;
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(214,168,79,0.08);
+  border-color: var(--color-gold);
 }
 
-/* Custom Marker Badge */
-.map-marker-badge {
-  background: #c9a24b;
-  color: #0f1c2e;
-  border: 2px solid #0f1c2e;
-  border-radius: 9999px;
-  font-weight: 700;
-  font-family: ui-monospace, monospace;
-  font-size: 11px;
-  padding: 2px 7px;
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-  white-space: nowrap;
+button {
+  background: transparent;
+  border: 1px solid rgba(142,106,50,0.12);
+  color: var(--color-softwhite);
 }
+
+/* Header emblem next to BankBid title */
+.bankbid-emblem {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.5rem;
+}
+
+.bankbid-emblem svg { fill: none; stroke: var(--color-gold); stroke-width: 1.5; opacity: 0.9 }
+
 

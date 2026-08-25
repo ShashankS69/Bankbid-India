@@ -72,9 +72,19 @@ export default function Home() {
             SARFAESI Auction Register
           </p>
 
-          <h1 className="font-display text-4xl md:text-5xl text-ink mt-2 leading-tight">
-            BankBid <span className="italic text-gold">India</span>
-          </h1>
+          <div className="flex items-center">
+            <span className="bankbid-emblem" aria-hidden="true">
+              <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M6 36 L6 18 L12 12 L18 18 L18 36" />
+                <path d="M30 36 L30 14 L34 10 L40 14 L40 36" />
+                <path d="M22 36 L22 8 L26 4 L30 8 L30 36" />
+                <path d="M4 40 L44 40" stroke-linecap="round" />
+              </svg>
+            </span>
+            <h1 className="font-display text-4xl md:text-5xl text-ink mt-2 leading-tight">
+              BankBid <span className="italic text-gold">India</span>
+            </h1>
+          </div>
 
           <p className="text-slate text-sm mt-3 max-w-lg font-body text-center">
             A single ledger of distressed real estate auction lots, aggregated across

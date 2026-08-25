@@ -1,4 +1,5 @@
 import time
+import datetime
 from collections import Counter
 
 from fastapi import APIRouter, HTTPException, Query
@@ -73,6 +74,7 @@ def _fetch_all_bank_names() -> list[str]:
             break
         offset += page_size
 
+    return all_names
     return all_names
 
 
@@ -177,7 +179,55 @@ def get_summary_stats():
         count = int(response.headers.get("content-range", "0/0").split("/")[-1])
         source_results.append({"source": source, "count": count})
 
+    # Total count (all listings)
+    resp_total = requests.get(
+        f"{SUPABASE_URL}/rest/v1/listings",
+        headers={**HEADERS, "Prefer": "count=exact"},
+        params={"select": "id", "limit": "1"},
+    )
+    total = int(resp_total.headers.get("content-range", "0/0").split("/")[-1])
+
+    # Active listings: auction_date in the future OR auction_date is null
+    today = datetime.date.today().isoformat()
+    resp_active = requests.get(
+        f"{SUPABASE_URL}/rest/v1/listings",
+        headers={**HEADERS, "Prefer": "count=exact"},
+        params={"select": "id", "limit": "1", "or": f"(auction_date.is.null,auction_date.gte.{today})"},
+    )
+    active_count = int(resp_active.headers.get("content-range", "0/0").split("/")[-1])
+
+    # Passed listings: auction_date is before today
+    resp_passed = requests.get(
+        f"{SUPABASE_URL}/rest/v1/listings",
+        headers={**HEADERS, "Prefer": "count=exact"},
+        params={"select": "id", "limit": "1", "auction_date": f"lt.{today}"},
+    )
+    passed_count = int(resp_passed.headers.get("content-range", "0/0").split("/")[-1])
+
+    # Price-on-request: reserve_price is null or zero
+    resp_por = requests.get(
+        f"{SUPABASE_URL}/rest/v1/listings",
+        headers={**HEADERS, "Prefer": "count=exact"},
+        params={"select": "id", "limit": "1", "or": "(reserve_price.is.null,reserve_price.eq.0)"},
+    )
+    por_count = int(resp_por.headers.get("content-range", "0/0").split("/")[-1])
+
+    # Priced listings: reserve_price > 0
+    resp_priced = requests.get(
+        f"{SUPABASE_URL}/rest/v1/listings",
+        headers={**HEADERS, "Prefer": "count=exact"},
+        params={"select": "id", "limit": "1", "reserve_price": "gt.0"},
+    )
+    priced_count = int(resp_priced.headers.get("content-range", "0/0").split("/")[-1])
+
     return {
         "sources": source_results,
         "banks": _bank_wise_counts(),
+        "totals": {
+            "total": total,
+            "active": active_count,
+            "passed": passed_count,
+            "priced": priced_count,
+            "price_on_request": por_count,
+        },
     }
