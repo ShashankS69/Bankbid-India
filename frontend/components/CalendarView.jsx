@@ -103,13 +103,13 @@ export default function CalendarView({ lots, loading, error }) {
     <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
       {/* Calendar */}
       <div style={{ flex: "1 1 480px", minWidth: 320 }}>
-        <div style={header}>
-          <button onClick={() => goToMonth(-1)} style={navButton} aria-label="Previous month">‹</button>
-          <div style={monthLabel}>
-            {MONTH_NAMES[cursor.month]} {cursor.year}
+          <div style={header}>
+            <button onClick={() => goToMonth(-1)} style={navButton} aria-label="Previous month">‹</button>
+            <div style={monthLabel}>
+              {MONTH_NAMES[cursor.month]} {cursor.year}
+            </div>
+            <button onClick={() => goToMonth(1)} style={navButton} aria-label="Next month">›</button>
           </div>
-          <button onClick={() => goToMonth(1)} style={navButton} aria-label="Next month">›</button>
-        </div>
 
         <div style={weekdayRow}>
           {WEEKDAY_LABELS.map((w, i) => (
@@ -202,7 +202,7 @@ const centeredText = { color: "#8A94A6", fontFamily: "monospace", fontSize: 14, 
 const header = { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 };
 const monthLabel = { fontFamily: "serif", fontSize: 24, fontWeight: 700, color: "#F4F1EA" };
 const navButton = {
-  background: "transparent", border: "1px solid rgba(212, 175, 106, 0.3)", color: "#D4AF6A",
+  background: "transparent", border: "1px solid rgba(242, 140, 38, 0.28)", color: "#F28C26",
   width: 32, height: 32, borderRadius: 3, cursor: "pointer", fontSize: 16,
 };
 const weekdayRow = { display: "grid", gridTemplateColumns: "repeat(7, 1fr)", marginBottom: 4 };
@@ -210,17 +210,17 @@ const weekdayCell = { textAlign: "center", fontFamily: "monospace", fontSize: 12
 const gridStyle = { display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 };
 const emptyCell = { minHeight: 56 };
 const dayCell = {
-  minHeight: 56, border: "1px solid rgba(212, 175, 106, 0.15)", borderRadius: 3,
+  minHeight: 56, border: "1px solid rgba(242, 140, 38, 0.12)", borderRadius: 3,
   background: "transparent", display: "flex", flexDirection: "column",
   alignItems: "center", justifyContent: "center", padding: 4,
 };
 const dayNumber = { fontFamily: "monospace", fontSize: 13, fontWeight: 600, color: "#8A94A6" };
-const dayCount = { fontFamily: "serif", fontSize: 17, fontWeight: 700, color: "#D4AF6A", marginTop: 2 };
-const panelTitle = { fontFamily: "monospace", fontSize: 13, fontWeight: 700, color: "#D4AF6A", marginBottom: 10, letterSpacing: "0.03em" };
+const dayCount = { fontFamily: "serif", fontSize: 17, fontWeight: 700, color: "#F28C26", marginTop: 2 };
+const panelTitle = { fontFamily: "monospace", fontSize: 13, fontWeight: 700, color: "#F28C26", marginBottom: 10, letterSpacing: "0.03em" };
 const panelList = { display: "flex", flexDirection: "column", gap: 10, maxHeight: 420, overflowY: "auto" };
-const lotRow = { borderBottom: "1px solid rgba(212, 175, 106, 0.1)", paddingBottom: 8 };
+const lotRow = { borderBottom: "1px solid rgba(242, 140, 38, 0.08)", paddingBottom: 8 };
 const tbaToggle = {
-  marginTop: 20, background: "transparent", border: "1px solid rgba(212, 175, 106, 0.25)",
+  marginTop: 20, background: "transparent", border: "1px solid rgba(242, 140, 38, 0.18)",
   color: "#8A94A6", fontFamily: "monospace", fontSize: 13, fontWeight: 600, padding: "8px 12px",
   borderRadius: 3, cursor: "pointer", width: "100%", textAlign: "left",
 };

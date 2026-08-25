@@ -76,8 +76,8 @@ export default function RegisterStats() {
 
       <RegisterSection title="Quick stats" loading={!stats}>
         <StatRow label="Total properties in the lot" count={totals.total || 0} pct={(totals.total || 0) / totalsTotal} />
-        <StatRow label="Active listings" count={totals.active || 0} pct={(totals.active || 0) / totalsTotal} />
-        <StatRow label="Passed listings" count={totals.passed || 0} pct={(totals.passed || 0) / totalsTotal} />
+        <StatRow label="Active listings" count={totals.active || 0} pct={(totals.active || 0) / totalsTotal} status="active" />
+        <StatRow label="Passed listings" count={totals.passed || 0} pct={(totals.passed || 0) / totalsTotal} status="passed" />
         <StatRow label="Listings with price" count={totals.priced || 0} pct={(totals.priced || 0) / totalsTotal} />
         <StatRow label="Price on request properties" count={totals.price_on_request || 0} pct={(totals.price_on_request || 0) / totalsTotal} />
       </RegisterSection>
@@ -112,7 +112,7 @@ function RegisterSection({ title, loading, children }) {
   );
 }
 
-function StatRow({ label, count, pct, muted }) {
+function StatRow({ label, count, pct, muted, status }) {
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-baseline justify-between gap-2">
@@ -124,13 +124,30 @@ function StatRow({ label, count, pct, muted }) {
         >
           {label}
         </span>
-        <span className="font-mono text-xs font-semibold text-slate shrink-0">
+        <span
+          className={[
+            "font-mono text-xs font-semibold shrink-0",
+            status === "active"
+              ? "bg-emerald-800/30 text-emerald-200 border border-emerald-700 px-2 py-0.5 rounded-sm"
+              : status === "passed"
+              ? "bg-red-900/30 text-red-300 border border-red-800 px-2 py-0.5 rounded-sm"
+              : "text-slate",
+          ].join(" ")}
+        >
           {count.toLocaleString("en-IN")}
         </span>
       </div>
       <div className="h-[4px] rounded-full bg-ink/10 overflow-hidden">
         <div
-          className={muted ? "h-full bg-slate-dim/60" : "h-full bg-gold"}
+          className={
+            muted
+              ? "h-full bg-slate-dim/60"
+              : status === "active"
+              ? "h-full bg-emerald-500"
+              : status === "passed"
+              ? "h-full bg-red-500"
+              : "h-full bg-gold"
+          }
           style={{ width: `${Math.max(pct * 100, 2)}%` }}
         />
       </div>

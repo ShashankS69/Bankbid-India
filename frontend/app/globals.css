@@ -9,9 +9,9 @@
   --color-deepnavy: #0A1B2E;
   --color-panelnavy: #0D2238;
   --color-elevatednavy: #102A43;
-  --color-gold: #D6A84F;
-  --color-gold-warm: #E3B65A;
-  --color-maporange: #F28C28;
+  --color-gold: #F28C26;
+  --color-gold-warm: #F28C26;
+  --color-maporange: #F28C26;
   --color-ivory: #F2EEE5;
   --color-softwhite: #D9DEE5;
   --color-mutedslate: #8B98A8;
@@ -111,6 +111,35 @@ body {
 .map-marker-badge { background: var(--color-gold); color: var(--color-midnight); border: 2px solid var(--color-midnight); }
 .leaflet-marker-icon { filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6)); }
 
+/* Custom map pin style: orange pin with hover-to-show exact count */
+.custom-map-icon .map-pin { position: relative; display: inline-block; }
+.custom-map-icon .map-marker-badge {
+  background: var(--color-maporange);
+  color: var(--color-midnight);
+  border: 2px solid var(--color-midnight);
+  padding: 6px 8px;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-family: var(--font-plex-mono);
+  font-size: 12px;
+  line-height: 1;
+}
+.custom-map-icon .map-pin::after {
+  content: attr(data-count);
+  position: absolute;
+  left: 50%; transform: translateX(-50%);
+  bottom: 130%;
+  background: rgba(12,18,28,0.9);
+  color: var(--color-softwhite);
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-family: var(--font-plex-mono);
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0; pointer-events: none; transition: opacity 150ms ease;
+}
+.custom-map-icon:hover .map-pin::after { opacity: 1; }
+
 /* Quick-stats / Register section tweaks */
 .perf-divider { border-top-style: solid; }
 
@@ -146,14 +175,14 @@ button {
 
 /* Header emblem next to BankBid title */
 .bankbid-emblem {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   margin-right: 0.5rem;
 }
 
-.bankbid-emblem svg { fill: none; stroke: var(--color-gold); stroke-width: 1.5; opacity: 0.9 }
+.bankbid-emblem svg { fill: none; stroke: var(--color-gold); stroke-width: 1.8; opacity: 0.95 }
 
 

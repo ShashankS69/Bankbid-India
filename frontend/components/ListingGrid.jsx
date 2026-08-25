@@ -139,9 +139,34 @@ export default function ListingGrid({ filters, onFilterChange, refreshKey }) {
             ← Previous Page
           </button>
 
-          <div className="text-ink font-medium">
-            Page <span className="text-gold font-bold">{currentPage}</span> of{" "}
-            <span className="text-slate font-bold">{totalPages}</span>
+          <div className="text-ink font-medium flex items-center gap-3">
+            <button
+              onClick={() => handlePageChange(1)}
+              disabled={currentPage <= 1}
+              className={`px-3 py-1 rounded-sm text-xs transition-colors ${
+                currentPage <= 1
+                  ? "border-ledger-line text-slate-dim opacity-50 cursor-not-allowed"
+                  : "border-gold/30 text-gold hover:bg-gold/8 hover:border-gold cursor-pointer"
+              }`}
+            >
+              First
+            </button>
+
+            <div>
+              Page <span className="text-gold font-bold">{currentPage}</span> of <span className="text-slate font-bold">{totalPages}</span>
+            </div>
+
+            <button
+              onClick={() => handlePageChange(totalPages)}
+              disabled={currentPage >= totalPages}
+              className={`px-3 py-1 rounded-sm text-xs transition-colors ${
+                currentPage >= totalPages
+                  ? "border-ledger-line text-slate-dim opacity-50 cursor-not-allowed"
+                  : "border-gold/30 text-gold hover:bg-gold/8 hover:border-gold cursor-pointer"
+              }`}
+            >
+              Last
+            </button>
           </div>
 
           <button

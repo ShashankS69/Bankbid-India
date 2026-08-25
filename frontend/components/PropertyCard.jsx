@@ -47,6 +47,16 @@ export default function PropertyCard({ listing, compact = false }) {
     return d < today;
   })();
 
+  const isActive = (() => {
+    if (isExpired) return false;
+    if (!auction_date) return true; // treat undated as active for the badge tint per summary definition
+    const d = new Date(auction_date);
+    if (isNaN(d.getTime())) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return d >= today;
+  })();
+
   if (compact) {
     return (
       <article className="lot-ticket rounded-sm p-3.5 pt-4 flex flex-col gap-2.5 transition-transform hover:-translate-y-0.5 min-w-0">
@@ -63,11 +73,11 @@ export default function PropertyCard({ listing, compact = false }) {
             </h3>
           </div>
           {isExpired ? (
-            <span className="shrink-0 font-mono text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded-sm border border-slate-dim/60 text-slate-dim">
+            <span className="shrink-0 font-mono text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded-sm border border-red-800/60 text-red-200 bg-red-900/30">
               Passed
             </span>
           ) : status ? (
-            <span className="shrink-0 font-mono text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded-sm border border-moss/50 text-moss">
+            <span className={`shrink-0 font-mono text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded-sm ${isActive ? 'border-emerald-700 text-emerald-200 bg-emerald-800/30' : 'border-moss/50 text-moss'}`}>
               {status}
             </span>
           ) : null}
@@ -117,11 +127,11 @@ export default function PropertyCard({ listing, compact = false }) {
           </h3>
         </div>
         {isExpired ? (
-          <span className="shrink-0 font-mono text-[10px] uppercase tracking-wide px-2 py-1 rounded-sm border border-slate-dim/60 text-slate-dim">
+          <span className="shrink-0 font-mono text-[10px] uppercase tracking-wide px-2 py-1 rounded-sm border border-red-800/60 text-red-200 bg-red-900/30">
             Passed
           </span>
         ) : status ? (
-          <span className="shrink-0 font-mono text-[10px] uppercase tracking-wide px-2 py-1 rounded-sm border border-moss/50 text-moss">
+          <span className={`shrink-0 font-mono text-[10px] uppercase tracking-wide px-2 py-1 rounded-sm ${isActive ? 'border-emerald-700 text-emerald-200 bg-emerald-800/30' : 'border-moss/50 text-moss'}`}>
             {status}
           </span>
         ) : null}

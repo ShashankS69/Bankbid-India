@@ -1,7 +1,36 @@
 
-.env
-__pycache__/
-topic/
-*.pyc
 .DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+
+# Python / backend
+.env
+.env.*
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.pyc
+pip-wheel-metadata/
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.coverage
+*.sqlite3
+*.db
+
+# Node-related (kept minimal at root; frontend handles most)
+node_modules/
+
+# Local topic data
+topic/
+
+# SSL / keys
+*.pem
+*.key
  

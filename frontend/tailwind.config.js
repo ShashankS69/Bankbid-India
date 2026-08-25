@@ -17,8 +17,8 @@ module.exports = {
           line: '#173047',
         },
         gold: {
-          DEFAULT: '#D6A84F',
-          warm: '#E3B65A',
+          DEFAULT: '#F28C26',
+          warm: '#F28C26',
           copper: '#B98232',
         },
         maporange: '#F28C28',

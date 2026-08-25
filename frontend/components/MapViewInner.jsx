@@ -132,11 +132,13 @@ function resolveCoords(location, district, state) {
 }
 
 function createCustomIcon(count) {
+  const display = count > 999 ? Math.round(count / 1000) + "k" : count;
+  // show the exact count on hover using data-count attribute, keep compact display in pin
   return L.divIcon({
     className: "custom-map-icon",
-    html: `<div class="map-marker-badge">${count > 999 ? Math.round(count / 1000) + "k" : count}</div>`,
-    iconSize: [32, 24],
-    iconAnchor: [16, 12],
+    html: `<div class="map-pin" data-count="${count}"><div class="map-marker-badge">${display}</div></div>`,
+    iconSize: [36, 28],
+    iconAnchor: [18, 14],
   });
 }
 
