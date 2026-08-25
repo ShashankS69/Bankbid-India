@@ -12,6 +12,7 @@ yarn-error.log*
 .env.local.example
 .env.*
 .DS_Store
+.env.local.example 
 
 # Build / cache
 .cache/
