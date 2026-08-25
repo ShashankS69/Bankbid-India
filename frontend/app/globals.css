@@ -1,0 +1,121 @@
+@import "leaflet/dist/leaflet.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  background-color: #0f1c2e;
+  color: #e7e2d3;
+}
+
+::selection {
+  background: #c9a24b;
+  color: #0f1c2e;
+}
+
+/* Ledger paper texture on the page background */
+.ledger-bg {
+  background-color: #0f1c2e;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(231, 226, 211, 0.035) 28px),
+    radial-gradient(ellipse at top left, rgba(201, 162, 75, 0.06), transparent 55%);
+}
+
+/* Auction lot ticket card: perforated top edge via a dashed rule + punch-hole notches */
+.lot-ticket {
+  position: relative;
+  background: #16273d;
+  border: 1px solid #233348;
+}
+
+.lot-ticket::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-image: linear-gradient(to right, #3a4d67 0 6px, transparent 6px 12px);
+  background-size: 12px 1px;
+  background-repeat: repeat-x;
+}
+
+.lot-ticket .lot-notch-l,
+.lot-ticket .lot-notch-r {
+  position: absolute;
+  top: -7px;
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: #0f1c2e;
+  border: 1px solid #233348;
+}
+
+.lot-ticket .lot-notch-l {
+  left: -7px;
+}
+
+.lot-ticket .lot-notch-r {
+  right: -7px;
+}
+
+.perf-divider {
+  border-top: 1px dashed #2c3e56;
+}
+
+/* Subtle focus ring that respects the palette */
+:focus-visible {
+  outline: 2px solid #c9a24b;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Leaflet Map Custom Styling */
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: #16273d !important;
+  color: #e7e2d3 !important;
+  border: 1px solid #233348 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6) !important;
+}
+
+.leaflet-container {
+  background: #0f1c2e !important;
+  font-family: inherit !important;
+}
+
+.leaflet-bar a {
+  background-color: #16273d !important;
+  color: #c9a24b !important;
+  border-bottom: 1px solid #233348 !important;
+}
+
+.leaflet-bar a:hover {
+  background-color: #233348 !important;
+  color: #dfc280 !important;
+}
+
+/* Custom Marker Badge */
+.map-marker-badge {
+  background: #c9a24b;
+  color: #0f1c2e;
+  border: 2px solid #0f1c2e;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  padding: 2px 7px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+}
+
