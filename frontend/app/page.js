@@ -74,11 +74,26 @@ export default function Home() {
 
           <div className="flex items-center">
             <span className="bankbid-emblem" aria-hidden="true">
-              <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M6 36 L6 18 L12 12 L18 18 L18 36" />
-                <path d="M30 36 L30 14 L34 10 L40 14 L40 36" />
-                <path d="M22 36 L22 8 L26 4 L30 8 L30 36" />
-                <path d="M4 40 L44 40" stroke-linecap="round" />
+              <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" width="36" height="36">
+                <!-- Refined architectural emblem: layered pediment, central arch, flanking columns -->
+                <g stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none">
+                  <!-- base line -->
+                  <path d="M6 36h36" />
+
+                  <!-- left column cluster -->
+                  <path d="M10 34v-10a1 1 0 011-1h2a1 1 0 011 1v10" />
+                  <path d="M16 34v-8a1 1 0 011-1h2a1 1 0 011 1v8" />
+
+                  <!-- right column cluster -->
+                  <path d="M32 34v-8a1 1 0 011-1h2a1 1 0 011 1v8" />
+                  <path d="M38 34v-10a1 1 0 00-1-1h-2a1 1 0 00-1 1v10" />
+
+                  <!-- central arch -->
+                  <path d="M18 30c0-6 3-12 6-12s6 6 6 12" />
+
+                  <!-- pediment / roof lines -->
+                  <path d="M8 20l8-6 8 6 8-6 8 6" opacity="0.9" />
+                </g>
               </svg>
             </span>
             <h1 className="font-display text-4xl md:text-5xl text-ink mt-2 leading-tight">
