@@ -65,10 +65,9 @@ export default function ListingGrid({ filters, onFilterChange, refreshKey }) {
       <div className="lot-ticket rounded-sm p-8 text-center">
         <p className="font-display text-lg text-ink">Ledger unreachable</p>
         <p className="text-sm text-slate mt-2 font-body">
-          The frontend couldn&apos;t reach the FastAPI backend. Confirm{" "}
-          <code className="font-mono text-gold">uvicorn app.main:app --reload</code> is
-          running on <code className="font-mono text-gold">127.0.0.1:8000</code>, then
-          retry.
+          The listings service is temporarily unreachable. This can happen if{" "}
+          the backend is waking up after a period of inactivity — please wait a{" "}
+          moment and retry.
         </p>
         <button
           onClick={load}
@@ -220,4 +219,3 @@ export default function ListingGrid({ filters, onFilterChange, refreshKey }) {
     </div>
   );
 }
-
