@@ -34,7 +34,7 @@ body {
 .ledger-bg {
   background-color: var(--color-midnight);
   background-image: linear-gradient(180deg, rgba(255,255,255,0.01) 0%, transparent 20%),
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 2000'>%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='0' y1='0' y2='1'%3E%3Cstop offset='0' stop-color='%238E6A32' stop-opacity='0.12'/%3E%3Cstop offset='1' stop-color='%238E6A32' stop-opacity='0.06'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg fill='none' stroke='%238E6A32' stroke-width='1' stroke-opacity='0.12' stroke-linecap='round'%3E%3Cpath d='M50 1800 L120 1500 L200 1700 L280 1450 L360 1600'/%3E%3Cpath d='M400 1600 L450 1400 L520 1550 L590 1300 L660 1500'/%3E%3Cpath d='M800 1800 L860 1500 L940 1700 L1020 1400 L1100 1600'/%3E%3Cpath d='M20 400 L80 300 L140 420 L200 260 L260 380'/%3E%3Cpath d='M320 200 L380 80 L440 180 L500 60 L560 150'/%3E%3C/g%3E%3C/svg%3E");
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 2000'>%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='0' y1='0' y2='1'%3E%3Cstop offset='0' stop-color='%238E6A32' stop-opacity='0.12'/%3E%3Cstop offset='1' stop-color='%238E6A32' stop-opacity='0.06'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg fill='none' stroke='%238E6A32' stroke-width='1' stroke-opacity='0.12' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M40 1820 L40 1620 L110 1620 L110 1580 L150 1580 L150 1620 L200 1620 L200 1500 L260 1500 L260 1820'/%3E%3Cpath d='M300 1820 L300 1650 L340 1650 L340 1600 L380 1600 L380 1650 L420 1650 L420 1820'/%3E%3Cpath d='M460 1820 L460 1550 L500 1550 L500 1500 L520 1500 L520 1470 L540 1470 L540 1500 L560 1500 L560 1550 L600 1550 L600 1820'/%3E%3Cpath d='M780 1820 L780 1580 L820 1580 L820 1540 L860 1540 L860 1580 L900 1580 L900 1820'/%3E%3Cpath d='M940 1820 L940 1500 L980 1500 L980 1460 L1000 1460 L1000 1420 L1020 1420 L1020 1460 L1040 1460 L1040 1500 L1080 1500 L1080 1820'/%3E%3Cpath d='M1100 1820 L1100 1650 L1140 1650 L1140 1600 L1160 1600 L1160 1650 L1180 1650 L1180 1820'/%3E%3Cg stroke-opacity='0.08'%3E%3Cpath d='M40 220 L40 60 L80 60 L80 220'/%3E%3Cpath d='M120 220 L120 100 L150 100 L150 70 L180 70 L180 100 L210 100 L210 220'/%3E%3Cpath d='M260 220 L260 140 L300 140 L300 220'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: center top;
   background-size: cover;
@@ -184,5 +184,3 @@ button {
 }
 
 .bankbid-emblem svg { fill: none; stroke: var(--color-gold); stroke-width: 1.8; opacity: 0.95 }
-
-
