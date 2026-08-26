@@ -72,7 +72,22 @@ export default function Home() {
             SARFAESI Auction Register
           </p>
 
-          <div className="flex items-center">
+                   <div className="flex items-center gap-2">
+            <span className="bankbid-emblem" aria-hidden="true">
+              <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" width="32" height="32">
+                <path
+                  d="M24 6 L28.5 18.5 L41.5 19.5 L31.3 27.6 L34.8 40 L24 32.8 L13.2 40 L16.7 27.6 L6.5 19.5 L19.5 18.5 Z"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  fill="none"
+                />
+              </svg>
+            </span>
+            <h1 className="font-display text-4xl md:text-5xl text-ink mt-2 leading-tight">
+              BankBid <span className="italic text-gold">India</span>
+            </h1>
             <span className="bankbid-emblem" aria-hidden="true">
               <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" width="36" height="36">
                 { /* Refined architectural emblem: layered pediment, central arch, flanking columns */ }
@@ -96,9 +111,6 @@ export default function Home() {
                 </g>
               </svg>
             </span>
-            <h1 className="font-display text-4xl md:text-5xl text-ink mt-2 leading-tight">
-              BankBid <span className="italic text-gold">India</span>
-            </h1>
           </div>
 
           <p className="text-slate text-sm mt-3 max-w-lg font-body text-center">
