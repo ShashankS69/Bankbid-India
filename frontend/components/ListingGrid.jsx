@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import PropertyCard from "./PropertyCard";
 import { fetchListings } from "@/lib/api";
 
-export default function ListingGrid({ filters, onFilterChange, refreshKey }) {
+export default function ListingGrid({ filters, onFilterChange, refreshKey, compact = false }) {
   const [listings, setListings] = useState([]);
   const [total, setTotal] = useState(null);
   const [status, setStatus] = useState("loading"); // loading | ready | error
@@ -126,59 +126,123 @@ export default function ListingGrid({ filters, onFilterChange, refreshKey }) {
       {/* PAGINATION CONTROLS */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between pt-6 border-t border-ledger-line/50 font-mono text-xs">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage <= 1}
-            className={`px-5 py-2.5 rounded-sm border transition-colors ${
-              currentPage <= 1
-                ? "border-ledger-line text-slate-dim opacity-50 cursor-not-allowed"
-                : "border-gold/40 text-gold hover:bg-gold/10 hover:border-gold cursor-pointer"
-            }`}
-          >
-            ← Previous Page
-          </button>
+          {compact ? (
+            <>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => handlePageChange(1)}
+                  disabled={currentPage <= 1}
+                  aria-label="First page"
+                  className={`w-9 h-9 flex items-center justify-center rounded-sm border text-sm transition-colors ${
+                    currentPage <= 1
+                      ? "border-ledger-line text-slate-dim opacity-50 cursor-not-allowed"
+                      : "border-gold/40 text-gold hover:bg-gold/10 hover:border-gold cursor-pointer"
+                  }`}
+                >
+                  «
+                </button>
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage <= 1}
+                  aria-label="Previous page"
+                  className={`w-9 h-9 flex items-center justify-center rounded-sm border text-sm transition-colors ${
+                    currentPage <= 1
+                      ? "border-ledger-line text-slate-dim opacity-50 cursor-not-allowed"
+                      : "border-gold/40 text-gold hover:bg-gold/10 hover:border-gold cursor-pointer"
+                  }`}
+                >
+                  ‹
+                </button>
+              </div>
 
-          <div className="text-ink font-medium flex items-center gap-3">
-            <button
-              onClick={() => handlePageChange(1)}
-              disabled={currentPage <= 1}
-              className={`px-3 py-1 rounded-sm text-xs transition-colors ${
-                currentPage <= 1
-                  ? "border-ledger-line text-slate-dim opacity-50 cursor-not-allowed"
-                  : "border-gold/30 text-gold hover:bg-gold/8 hover:border-gold cursor-pointer"
-              }`}
-            >
-              First
-            </button>
+              <div className="text-ink font-medium">
+                Page <span className="text-gold font-bold">{currentPage}</span> of <span className="text-slate font-bold">{totalPages}</span>
+              </div>
 
-            <div>
-              Page <span className="text-gold font-bold">{currentPage}</span> of <span className="text-slate font-bold">{totalPages}</span>
-            </div>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage >= totalPages}
+                  aria-label="Next page"
+                  className={`w-9 h-9 flex items-center justify-center rounded-sm border text-sm transition-colors ${
+                    currentPage >= totalPages
+                      ? "border-ledger-line text-slate-dim opacity-50 cursor-not-allowed"
+                      : "border-gold/40 text-gold hover:bg-gold/10 hover:border-gold cursor-pointer"
+                  }`}
+                >
+                  ›
+                </button>
+                <button
+                  onClick={() => handlePageChange(totalPages)}
+                  disabled={currentPage >= totalPages}
+                  aria-label="Last page"
+                  className={`w-9 h-9 flex items-center justify-center rounded-sm border text-sm transition-colors ${
+                    currentPage >= totalPages
+                      ? "border-ledger-line text-slate-dim opacity-50 cursor-not-allowed"
+                      : "border-gold/40 text-gold hover:bg-gold/10 hover:border-gold cursor-pointer"
+                  }`}
+                >
+                  »
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage <= 1}
+                className={`px-5 py-2.5 rounded-sm border transition-colors ${
+                  currentPage <= 1
+                    ? "border-ledger-line text-slate-dim opacity-50 cursor-not-allowed"
+                    : "border-gold/40 text-gold hover:bg-gold/10 hover:border-gold cursor-pointer"
+                }`}
+              >
+                ← Previous Page
+              </button>
 
-            <button
-              onClick={() => handlePageChange(totalPages)}
-              disabled={currentPage >= totalPages}
-              className={`px-3 py-1 rounded-sm text-xs transition-colors ${
-                currentPage >= totalPages
-                  ? "border-ledger-line text-slate-dim opacity-50 cursor-not-allowed"
-                  : "border-gold/30 text-gold hover:bg-gold/8 hover:border-gold cursor-pointer"
-              }`}
-            >
-              Last
-            </button>
-          </div>
+              <div className="text-ink font-medium flex items-center gap-3">
+                <button
+                  onClick={() => handlePageChange(1)}
+                  disabled={currentPage <= 1}
+                  className={`px-3 py-1 rounded-sm text-xs transition-colors ${
+                    currentPage <= 1
+                      ? "border-ledger-line text-slate-dim opacity-50 cursor-not-allowed"
+                      : "border-gold/30 text-gold hover:bg-gold/8 hover:border-gold cursor-pointer"
+                  }`}
+                >
+                  First
+                </button>
 
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage >= totalPages}
-            className={`px-5 py-2.5 rounded-sm border transition-colors ${
-              currentPage >= totalPages
-                ? "border-ledger-line text-slate-dim opacity-50 cursor-not-allowed"
-                : "border-gold/40 text-gold hover:bg-gold/10 hover:border-gold cursor-pointer"
-            }`}
-          >
-            Next Page →
-          </button>
+                <div>
+                  Page <span className="text-gold font-bold">{currentPage}</span> of <span className="text-slate font-bold">{totalPages}</span>
+                </div>
+
+                <button
+                  onClick={() => handlePageChange(totalPages)}
+                  disabled={currentPage >= totalPages}
+                  className={`px-3 py-1 rounded-sm text-xs transition-colors ${
+                    currentPage >= totalPages
+                      ? "border-ledger-line text-slate-dim opacity-50 cursor-not-allowed"
+                      : "border-gold/30 text-gold hover:bg-gold/8 hover:border-gold cursor-pointer"
+                  }`}
+                >
+                  Last
+                </button>
+              </div>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage >= totalPages}
+                className={`px-5 py-2.5 rounded-sm border transition-colors ${
+                  currentPage >= totalPages
+                    ? "border-ledger-line text-slate-dim opacity-50 cursor-not-allowed"
+                    : "border-gold/40 text-gold hover:bg-gold/10 hover:border-gold cursor-pointer"
+                }`}
+              >
+                Next Page →
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>

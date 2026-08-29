@@ -124,6 +124,7 @@ export default function MobileHome({
             filters={filters}
             onFilterChange={setFilters}
             refreshKey={refreshKey}
+            compact
           />
         </div>
       )}
