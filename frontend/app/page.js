@@ -160,6 +160,25 @@ export default function Home() {
           className="w-full min-w-0 flex flex-col gap-10"
           aria-label="Auction calendar and map"
         >
+          {/* EMD EXPLAINER */}
+          <div className="lot-ticket rounded-sm p-4">
+            <p className="font-mono text-lg font-extrabold tracking-widest text-gold uppercase mb-2">
+              Note
+            </p>
+            <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
+              What is EMD?
+            </p>
+            <p className="text-slate text-sm leading-relaxed font-body">
+              EMD (Earnest Money Deposit) is a refundable deposit you must pay
+              upfront to be eligible to bid in a bank auction — separate from
+              the property&apos;s reserve price. It&apos;s usually around 10%
+              of the reserve price, but each bank sets its own amount per
+              listing. Use the EMD filter to only see auctions you can
+              actually afford to enter, since a lower reserve price doesn&apos;t
+              always mean a lower upfront deposit.
+            </p>
+          </div>
+
           <div>
             <div className="mb-5">
               <p className="font-mono text-lg font-extrabold tracking-widest text-gold uppercase">

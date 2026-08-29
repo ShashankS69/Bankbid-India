@@ -104,6 +104,7 @@ def query_listings(
     source: str | None = None,
     min_price: float | None = None,
     max_price: float | None = None,
+    max_emd: float | None = None,
     price_availability: str | None = None,
     sort: str | None = None,
     limit: int = 50,
@@ -129,6 +130,8 @@ def query_listings(
         params.append(("reserve_price", f"gte.{min_price}"))
     if max_price is not None:
         params.append(("reserve_price", f"lte.{max_price}"))
+    if max_emd is not None:
+        params.append(("emd", f"lte.{max_emd}"))
 
     if price_availability == "priced":
         params.append(("reserve_price", "gt.0"))

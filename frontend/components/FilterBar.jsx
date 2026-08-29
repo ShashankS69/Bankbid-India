@@ -93,6 +93,7 @@ export default function FilterBar({ filters, onChange }) {
     filters.min_price ||
     filters.max_price ||
     filters.price_availability ||
+    filters.max_emd ||
     filters.sort;
 
   return (
@@ -161,7 +162,7 @@ export default function FilterBar({ filters, onChange }) {
         />
       </div>
 
-      {/* Price + availability + sorting */}
+      {/* Price + EMD + availability + sorting */}
       <div className="flex flex-col md:flex-row gap-3 md:items-start md:flex-wrap">
         <div className="flex items-start gap-2">
           <PriceInput
@@ -178,6 +179,12 @@ export default function FilterBar({ filters, onChange }) {
             onCommit={(v) => set("max_price", v)}
           />
         </div>
+
+        <PriceInput
+          placeholder="Max EMD (e.g. 2L)"
+          value={filters.max_emd}
+          onCommit={(v) => set("max_emd", v)}
+        />
 
         <select
           value={filters.price_availability || ""}
