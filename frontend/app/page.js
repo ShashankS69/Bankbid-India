@@ -118,10 +118,6 @@ export default function Home() {
             IBAPI, bankauctions.in, and auctiontiger.in.
           </p>
         </div>
-
-        <FetchLatestButton
-          onDone={() => setRefreshKey((k) => k + 1)}
-        />
       </header>
 
       {/* THREE-COLUMN MAIN LAYOUT */}
@@ -160,6 +156,11 @@ export default function Home() {
           className="w-full min-w-0 flex flex-col gap-10"
           aria-label="Auction calendar and map"
         >
+          {/* FETCH LATEST BUTTON */}
+          <FetchLatestButton
+            onDone={() => setRefreshKey((k) => k + 1)}
+          />
+
           {/* EMD EXPLAINER */}
           <div className="lot-ticket rounded-sm p-4">
             <p className="font-mono text-lg font-extrabold tracking-widest text-gold uppercase mb-2">
@@ -185,7 +186,6 @@ export default function Home() {
               Lets users save their desired search criteria and receive notifications when new properties match their filters.
             </p>
           </div>
-
           <div>
             <div className="mb-5">
               <p className="font-mono text-lg font-extrabold tracking-widest text-gold uppercase">
