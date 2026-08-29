@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 import { parsePrice, formatPriceHint } from "@/lib/parsePrice";
+import { saveSearch } from "@/lib/api";
+import { STATES, getCitiesForState, findStateForCity } from "@/lib/indiaLocations";
 
 const PROPERTY_TYPES = ["RESIDENTIAL", "COMMERCIAL", "INDUSTRIAL", "OTHERS"];
 
@@ -75,6 +77,167 @@ function PriceInput({ placeholder, value, onCommit }) {
   );
 }
 
+/**
+ * Generic searchable dropdown: typing filters the option list by prefix,
+ * clicking an option selects it, and free typing without selecting still
+ * flows through onInputChange (so it behaves like a normal text filter
+ * if the user just types and moves on, e.g. a city not in our dataset).
+ */
+function Combobox({ value, options, placeholder, className, onInputChange, onSelect, onBlurCheck }) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const query = (value || "").toLowerCase();
+  const filtered = query
+    ? options.filter((o) => o.toLowerCase().startsWith(query)).slice(0, 50)
+    : options.slice(0, 50);
+
+  return (
+    <div ref={containerRef} className="relative">
+      <input
+        type="text"
+        placeholder={placeholder}
+        value={value || ""}
+        onChange={(e) => {
+          onInputChange(e.target.value);
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+        onBlur={() => onBlurCheck?.(value)}
+        className={`${className} focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold`}
+      />
+
+      {open && filtered.length > 0 && (
+        <ul className="absolute z-20 mt-1.5 w-full max-h-64 overflow-auto bg-[#1c2333] border border-ledger-line rounded-xl shadow-2xl py-1.5 list-none m-0">
+          {filtered.map((opt) => {
+            const isSelected = opt.toLowerCase() === query;
+            return (
+              <li
+                key={opt}
+                // onMouseDown (not onClick) + preventDefault so this fires
+                // before the input's onBlur, avoiding a race where blur
+                // closes the list before the click registers.
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  onSelect(opt);
+                  setOpen(false);
+                }}
+                className={[
+                  "flex items-center gap-2 mx-1.5 px-3 py-1.5 rounded-lg text-sm font-body leading-snug cursor-pointer m-0",
+                  isSelected
+                    ? "bg-rust text-white font-semibold"
+                    : "text-ink hover:bg-white/5",
+                ].join(" ")}
+              >
+                <span className="w-4 shrink-0">
+                  {isSelected ? "✓" : ""}
+                </span>
+                {opt}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function SaveSearchForm({ filters }) {
+  const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [status, setStatus] = useState("idle"); // idle | saving | success | error
+
+  async function handleSave() {
+    if (!email || !email.includes("@")) {
+      setStatus("error");
+      return;
+    }
+    setStatus("saving");
+    try {
+      await saveSearch(filters, email, phone);
+      setStatus("success");
+      setTimeout(() => {
+        setOpen(false);
+        setStatus("idle");
+        setEmail("");
+        setPhone("");
+      }, 2500);
+    } catch {
+      setStatus("error");
+    }
+  }
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="text-xs font-mono uppercase tracking-wide text-gold hover:text-ink transition-colors mt-1 self-start"
+      >
+        Save this search
+      </button>
+    );
+  }
+
+  if (status === "success") {
+    return (
+      <span className="text-xs font-mono text-gold mt-1 self-start">
+        Saved — you'll get an email when new matches come in.
+      </span>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-2 mt-1">
+      <div className="flex items-center gap-2">
+        <input
+          type="email"
+          placeholder="you@email.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-48 bg-ledger border border-ledger-line rounded-sm px-3 py-2 text-sm text-ink placeholder:text-slate-dim font-mono"
+        />
+        <input
+          type="tel"
+          placeholder="Phone (optional)"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          className="w-40 bg-ledger border border-ledger-line rounded-sm px-3 py-2 text-sm text-ink placeholder:text-slate-dim font-mono"
+        />
+      </div>
+
+      <div className="flex items-center gap-2">
+        <button
+          onClick={handleSave}
+          disabled={status === "saving"}
+          className="text-xs font-mono uppercase tracking-wide text-gold hover:text-ink transition-colors disabled:opacity-50"
+        >
+          {status === "saving" ? "Saving…" : "Confirm"}
+        </button>
+        <button
+          onClick={() => setOpen(false)}
+          className="text-xs font-mono uppercase tracking-wide text-slate-dim hover:text-rust transition-colors"
+        >
+          Cancel
+        </button>
+        {status === "error" && (
+          <span className="text-xs font-mono text-rust">Enter a valid email</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function FilterBar({ filters, onChange }) {
   function set(key, value) {
     onChange({
@@ -83,6 +246,33 @@ export default function FilterBar({ filters, onChange }) {
       offset: 0,
     });
   }
+
+  // City selected from the dropdown (or an exact typed match on blur)
+  // also fills in the matching state, in one combined update.
+  function applyCitySelection(city) {
+    const matchedState = findStateForCity(city);
+    onChange({
+      ...filters,
+      city,
+      state: matchedState || filters.state,
+      offset: 0,
+    });
+  }
+
+  function handleCityBlurCheck(typedValue) {
+    if (!typedValue) return;
+    const matchedState = findStateForCity(typedValue);
+    if (matchedState && matchedState !== filters.state) {
+      onChange({
+        ...filters,
+        city: typedValue,
+        state: matchedState,
+        offset: 0,
+      });
+    }
+  }
+
+  const cityOptions = getCitiesForState(filters.state);
 
   const hasFilters =
     filters.city ||
@@ -103,13 +293,28 @@ export default function FilterBar({ filters, onChange }) {
 
       {/* Main filters */}
       <div className="flex flex-col md:flex-row gap-3 md:items-start md:flex-wrap">
-        <input
-          type="text"
-          placeholder="City…"
-          value={filters.city || ""}
-          onChange={(e) => set("city", e.target.value)}
-          className="flex-1 min-w-[160px] bg-ledger border border-ledger-line rounded-sm px-3 py-2 text-sm text-ink placeholder:text-slate-dim font-body focus:outline-none"
-        />
+        <div className="w-44">
+          <Combobox
+            placeholder="State"
+            value={filters.state || ""}
+            options={STATES}
+            onInputChange={(v) => set("state", v)}
+            onSelect={(v) => set("state", v)}
+            className="w-full bg-ledger border border-ledger-line rounded-sm px-3 py-2 text-sm text-ink placeholder:text-slate-dim font-body"
+          />
+        </div>
+
+        <div className="w-32">
+          <Combobox
+            placeholder="City…"
+            value={filters.city || ""}
+            options={cityOptions}
+            onInputChange={(v) => set("city", v)}
+            onSelect={applyCitySelection}
+            onBlurCheck={handleCityBlurCheck}
+            className="w-full bg-ledger border border-ledger-line rounded-sm px-3 py-2 text-sm text-ink placeholder:text-slate-dim font-body focus:outline-none"
+          />
+        </div>
 
         <select
           value={filters.property_type || ""}
@@ -152,14 +357,6 @@ export default function FilterBar({ filters, onChange }) {
             </option>
           ))}
         </select>
-
-        <input
-          type="text"
-          placeholder="State"
-          value={filters.state || ""}
-          onChange={(e) => set("state", e.target.value)}
-          className="w-28 bg-ledger border border-ledger-line rounded-sm px-3 py-2 text-sm text-ink placeholder:text-slate-dim font-body"
-        />
       </div>
 
       {/* Price + EMD + availability + sorting */}
@@ -211,19 +408,23 @@ export default function FilterBar({ filters, onChange }) {
         </select>
       </div>
 
-      {hasFilters && (
-        <button
-          onClick={() =>
-            onChange({
-              offset: 0,
-              limit: filters.limit,
-            })
-          }
-          className="text-xs font-mono uppercase tracking-wide text-rust hover:text-gold transition-colors mt-1 self-start"
-        >
-          Clear filters
-        </button>
-      )}
+      <div className="flex items-center gap-4">
+        {hasFilters && (
+          <button
+            onClick={() =>
+              onChange({
+                offset: 0,
+                limit: filters.limit,
+              })
+            }
+            className="text-xs font-mono uppercase tracking-wide !text-red-600 hover:!text-red-800 transition-colors mt-1 self-start"
+          >
+            Clear filters
+          </button>
+        )}
+
+        {hasFilters && <SaveSearchForm filters={filters} />}
+      </div>
     </div>
   );
 }

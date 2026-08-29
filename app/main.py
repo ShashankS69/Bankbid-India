@@ -2,7 +2,7 @@ import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import fetch, listings
+from app.routers import fetch, listings, saved_searches
 
 app = FastAPI(
     title="BankBid India API",
@@ -24,6 +24,7 @@ app.add_middleware(
 
 app.include_router(fetch.router, prefix="/api", tags=["fetch"])
 app.include_router(listings.router, prefix="/api", tags=["listings"])
+app.include_router(saved_searches.router, prefix="/api", tags=["saved-searches"])
 
 @app.get("/health")
 def health_check():

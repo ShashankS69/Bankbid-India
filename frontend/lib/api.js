@@ -99,3 +99,38 @@ export async function fetchSourceSummary() {
   }
   return res.json();
 }
+
+/**
+ * Save the current filter set as an alert.
+ * Matches POST /api/saved-searches in app/routers/saved_searches.py.
+ * Translates FilterBar's `bank` key to the backend's `bank_name`,
+ * same as fetchListings does. `phone` is optional and unused for now
+ * (WhatsApp/SMS alerts deferred) — stored for when that channel is built.
+ */
+export async function saveSearch(filters, email, phone) {
+  const body = {
+    email,
+    phone: phone || undefined,
+    city: filters.city || undefined,
+    state: filters.state || undefined,
+    property_type: filters.property_type || undefined,
+    bank_name: filters.bank || undefined,
+    source: filters.source || undefined,
+    min_price: filters.min_price || undefined,
+    max_price: filters.max_price || undefined,
+    max_emd: filters.max_emd || undefined,
+    price_availability: filters.price_availability || undefined,
+  };
+
+  const res = await fetch(`${API_BASE}/api/saved-searches`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to save search: ${res.status}`);
+  }
+
+  return res.json();
+}
