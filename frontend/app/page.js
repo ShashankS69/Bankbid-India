@@ -8,10 +8,13 @@ import MapView from "@/components/MapView";
 import FetchLatestButton from "@/components/FetchLatestButton";
 import RegisterStats from "@/components/RegisterStats";
 import CalendarView from "@/components/CalendarView";
+import MobileHome from "@/components/MobileHome";
 
 import { fetchAllListings } from "@/lib/api";
+import useIsMobile from "@/lib/useIsMobile";
 
 export default function Home() {
+  const isMobile = useIsMobile();
   const [filters, setFilters] = useState({ offset: 0, limit: 54 });
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -63,6 +66,29 @@ export default function Home() {
       limit: 54,
     }));
   };
+
+  // isMobile is null until the viewport check runs on mount — hold off
+  // rendering either layout until then so we never mount both (Leaflet map +
+  // calendar) at once, and never flash the wrong one.
+  if (isMobile === null) {
+    return null;
+  }
+
+  if (isMobile) {
+    return (
+      <MobileHome
+        filters={filters}
+        setFilters={setFilters}
+        refreshKey={refreshKey}
+        setRefreshKey={setRefreshKey}
+        lots={lots}
+        loadingCalendar={loadingCalendar}
+        calendarError={calendarError}
+        progress={progress}
+        handleSelectCity={handleSelectCity}
+      />
+    );
+  }
 
   return (
     <main className="w-full max-w-[1700px] mx-auto px-6 lg:px-8 py-10 md:py-14">
