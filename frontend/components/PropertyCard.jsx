@@ -29,6 +29,8 @@ export default function PropertyCard({ listing, compact = false }) {
     source_url,
     area_sqft_estimated,
     residex_comparison,
+    previous_price,
+    price_changed_at,
   } = listing;
 
   const typeLabel = TYPE_LABELS[property_type?.toUpperCase()] || titleCase(property_type) || "Property";
@@ -59,6 +61,11 @@ export default function PropertyCard({ listing, compact = false }) {
     today.setHours(0, 0, 0, 0);
     return d >= today;
   })();
+
+  const hasPriceCut = previous_price && reserve_price && previous_price > reserve_price;
+  const priceCutPct = hasPriceCut
+    ? Math.round(((previous_price - reserve_price) / previous_price) * 100)
+    : null;
 
   const linkClassCompact = "text-[9px] font-mono text-gold uppercase tracking-wide underline underline-offset-2 hover:text-gold/80";
   const linkClassFull = "text-[10px] font-mono text-gold uppercase tracking-wide underline underline-offset-2 hover:text-gold/80";
@@ -96,6 +103,12 @@ export default function PropertyCard({ listing, compact = false }) {
           <p className="font-display text-xl text-gold leading-none mt-0.5">
             {formatINR(reserve_price)}
           </p>
+          {hasPriceCut && (
+            <p className="text-[9px] font-mono text-moss mt-1">
+              <span className="line-through text-slate-dim">{formatINR(previous_price)}</span>
+              {" "}· cut {priceCutPct}%
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col gap-0.5 text-[11px] font-mono text-slate pt-0.5">
@@ -159,6 +172,15 @@ export default function PropertyCard({ listing, compact = false }) {
           <p className="font-display text-3xl text-gold leading-none mt-1">
             {formatINR(reserve_price)}
           </p>
+          {hasPriceCut && (
+            <p
+              className="text-xs font-mono text-moss mt-1.5"
+              title={price_changed_at ? `Price cut on ${formatDate(price_changed_at)}` : undefined}
+            >
+              <span className="line-through text-slate-dim">{formatINR(previous_price)}</span>
+              {" "}· cut {priceCutPct}%
+            </p>
+          )}
         </div>
         {emd ? (
           <div className="text-right">
