@@ -29,19 +29,25 @@ def update_last_notified(search_id: str, when: str) -> None:
     )
 
 
+def _format_match_row(m: dict) -> str:
+    """Build one <li> row for a matched listing, avoiding nested f-string issues."""
+    bank = m.get("bank_name") or "Bank N/A"
+    ptype = m.get("property_type") or "Property"
+    location = m.get("location") or "Undisclosed"
+    price = m.get("reserve_price") or "On Request"
+    source_url = m.get("source_url")
+
+    link_part = f" (via {source_url})" if source_url else ""
+    return f"<li><b>{bank}</b> — {ptype} in {location} — Reserve: ₹{price}{link_part}</li>"
+
+
 def send_alert_email(to_email: str, matches: list[dict]) -> bool:
     """Send a simple email listing new matches via Resend."""
     if not RESEND_API_KEY:
         print("RESEND_API_KEY not set — skipping email send")
         return False
 
-    rows_html = "".join(
-        f"<li><b>{m.get('bank_name') or 'Bank N/A'}</b> — "
-        f"{m.get('property_type') or 'Property'} in {m.get('location') or 'Undisclosed'} "
-        f"— Reserve: ₹{m.get('reserve_price') or 'On Request'}"
-        f"{f' (via {m.get(\"source_url\")})' if m.get('source_url') else ''}</li>"
-        for m in matches
-    )
+    rows_html = "".join(_format_match_row(m) for m in matches)
 
     payload = {
         "from": RESEND_FROM,
