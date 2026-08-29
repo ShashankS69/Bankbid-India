@@ -103,7 +103,16 @@ def fetch_auctiontiger(known_ids: set[str] | None = None, full_fetch: bool = Fal
         data = response.json()
         page_records = data.get("data", [])
 
+        # --- DEBUG: remove once the pagination gap is diagnosed ---
+        print(
+            f"[draw={draw}] start={start} got={len(page_records)} "
+            f"recordsTotal={data.get('recordsTotal')} "
+            f"recordsFiltered={data.get('recordsFiltered')}"
+        )
+        # ------------------------------------------------------------
+
         if not page_records:
+            print(f"[draw={draw}] EMPTY PAGE — stopping here")
             break  # no more data
 
         if full_fetch:
@@ -114,14 +123,16 @@ def fetch_auctiontiger(known_ids: set[str] | None = None, full_fetch: bool = Fal
             )
 
         # Check if we've fetched everything
-        total = data.get("recordsTotal", 0)
+        total = data.get("recordsFiltered", data.get("recordsTotal", 0))
         start += PAGE_SIZE
         draw += 1
 
         if start >= total:
+            print(f"[draw={draw}] start={start} >= total={total} — stopping here")
             break
 
         # Polite delay — don't hammer the server
         time.sleep(0.2)
 
+    print(f"TOTAL RECORDS COLLECTED: {len(all_records)}")
     return all_records

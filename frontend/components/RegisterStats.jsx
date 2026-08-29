@@ -58,6 +58,7 @@ export default function RegisterStats() {
             label={SOURCE_LABELS[s.source] || s.source}
             count={s.count}
             pct={s.count / sourceTotal}
+            note={s.source === "auctiontiger" ? "passed listings will redirect to homepage" : null}
           />
         ))}
       </RegisterSection>
@@ -112,7 +113,7 @@ function RegisterSection({ title, loading, children }) {
   );
 }
 
-function StatRow({ label, count, pct, muted, status }) {
+function StatRow({ label, count, pct, muted, status, note }) {
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-baseline justify-between gap-2">
@@ -123,6 +124,11 @@ function StatRow({ label, count, pct, muted, status }) {
           ].join(" ")}
         >
           {label}
+          {note && (
+            <span className="text-[10px] font-mono text-slate-dim italic ml-1">
+              ({note})
+            </span>
+          )}
         </span>
         <span
           className={[

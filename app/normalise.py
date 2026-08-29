@@ -1,6 +1,6 @@
 from datetime import datetime
 from app.utils.extract_area import extract_area_sqft
-
+from app.scrapers.source_url import build_source_url
 
 def clean_str(val) -> str | None:
     if val is None:
@@ -43,12 +43,12 @@ def normalise_ibapi(row: dict) -> dict:
         "status":        "active",
         "source":        "ibapi",
         "source_id":     clean_str(row.get("rowid")),
+        "source_url":    build_source_url("ibapi", row),
         "fetched_at":    datetime.now().isoformat(),
     }
 
 
 # ── bankauctions.in ───────────────────────────────────────────────────────────
-
 def _guess_property_type(property_details: str | None) -> str | None:
     """
     bankauctions.in has no clean property-type field — property_details is
@@ -59,6 +59,8 @@ def _guess_property_type(property_details: str | None) -> str | None:
         return None
     return property_details.split(":")[0].strip() or None
 
+def normalise_bankauctions(row: dict) -> dict:
+    ...
 
 def normalise_bankauctions(row: dict) -> dict:
     """
@@ -76,7 +78,7 @@ def normalise_bankauctions(row: dict) -> dict:
     will be NULL for most rows, since only a minority mention area.
     """
     return {
-        "property_id":   None,                                          # no stable ID — dedup via composite key
+        "property_id":   clean_str(row.get("listing_id")),   # also used as source_id for dedup        # no stable ID — dedup via composite key
         "bank_name":     clean_str(row.get("institution")),
         "branch":        None,
         "property_type": _guess_property_type(row.get("property_details")),
@@ -90,12 +92,12 @@ def normalise_bankauctions(row: dict) -> dict:
         "status":        "active",
         "source":        "bankauctions",
         "source_id":     clean_str(row.get("listing_id")),
+        "source_url":    build_source_url("bankauctions", row),
         "fetched_at":    datetime.now().isoformat(),
     }
 
 
 # ── auctiontiger.in ───────────────────────────────────────────────────────────
-
 def normalise_auctiontiger(row: dict) -> dict:
     """
     Maps auctiontiger.in DataTables API fields → unified listings schema.
@@ -110,7 +112,7 @@ def normalise_auctiontiger(row: dict) -> dict:
     mentioned at all).
     """
     return {
-        "property_id":   None,
+        "property_id":   clean_str(row.get("id")),
         "bank_name":     clean_str(row.get("bank")),
         "branch":        None,
         "property_type": clean_str(row.get("asset")),
@@ -124,5 +126,6 @@ def normalise_auctiontiger(row: dict) -> dict:
         "status":        "active",
         "source":        "auctiontiger",
         "source_id":     clean_str(row.get("encrypted_id")),           # used as incremental dedup key
+        "source_url":    build_source_url("auctiontiger", row),
         "fetched_at":    datetime.now().isoformat(),
     }

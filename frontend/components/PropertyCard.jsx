@@ -26,12 +26,15 @@ export default function PropertyCard({ listing, compact = false }) {
     state,
     district,
     source,
+    source_url,
     area_sqft_estimated,
     residex_comparison,
   } = listing;
 
   const typeLabel = TYPE_LABELS[property_type?.toUpperCase()] || titleCase(property_type) || "Property";
   const sourceLabel = SOURCE_LABELS[source?.toLowerCase()] || source;
+  const isIbapi = source?.toLowerCase() === "ibapi";
+  const sourceLinkLabel = isIbapi ? "Search on IBAPI" : "View source listing";
   const place = [titleCase(location), titleCase(district), titleCase(state)]
     .filter(Boolean)
     .filter((v, i, arr) => arr.indexOf(v) === i)
@@ -49,13 +52,16 @@ export default function PropertyCard({ listing, compact = false }) {
 
   const isActive = (() => {
     if (isExpired) return false;
-    if (!auction_date) return true; // treat undated as active for the badge tint per summary definition
+    if (!auction_date) return true;
     const d = new Date(auction_date);
     if (isNaN(d.getTime())) return false;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return d >= today;
   })();
+
+  const linkClassCompact = "text-[9px] font-mono text-gold uppercase tracking-wide underline underline-offset-2 hover:text-gold/80";
+  const linkClassFull = "text-[10px] font-mono text-gold uppercase tracking-wide underline underline-offset-2 hover:text-gold/80";
 
   if (compact) {
     return (
@@ -106,6 +112,14 @@ export default function PropertyCard({ listing, compact = false }) {
         {sourceLabel && (
           <p className="text-[9px] font-mono text-slate-dim uppercase tracking-wide -mb-0.5">
             via {sourceLabel}
+          </p>
+        )}
+
+        {source_url && <a href={source_url} target="_blank" rel="noopener noreferrer" className={linkClassCompact}>{sourceLinkLabel}</a>}
+
+        {source_url && isIbapi && property_id && (
+          <p className="text-[9px] font-mono text-slate-dim -mt-1">
+            Type &quot;{property_id}&quot; in Property ID to find it
           </p>
         )}
       </article>
@@ -182,6 +196,14 @@ export default function PropertyCard({ listing, compact = false }) {
       {sourceLabel && (
         <p className="text-[10px] font-mono text-slate-dim uppercase tracking-wide -mb-1">
           via {sourceLabel}
+        </p>
+      )}
+
+      {source_url && <a href={source_url} target="_blank" rel="noopener noreferrer" className={linkClassFull}>{sourceLinkLabel}</a>}
+
+      {source_url && isIbapi && property_id && (
+        <p className="text-[10px] font-mono text-slate-dim -mt-1">
+          Type &quot;{property_id}&quot; in Property ID to find it
         </p>
       )}
     </article>
