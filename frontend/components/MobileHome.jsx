@@ -131,7 +131,7 @@ export default function MobileHome({
       {/* STATS TAB — same RegisterStats panel that sits in the desktop left column */}
       {activeTab === "stats" && (
         <div>
-          <RegisterStats />
+          <RegisterStats variant="mobile" />
         </div>
       )}
 

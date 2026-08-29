@@ -10,9 +10,15 @@ const SOURCE_LABELS = {
 };
 
 /**
- * Left-nav ledger panel showing where the register's lots come from —
- * source breakdown up top, bank-wise ranking below. Reads a single
+ * Ledger panel showing where the register's lots come from — source
+ * breakdown up top, bank-wise ranking below. Reads a single
  * /listings/stats/summary response ({ sources, banks }).
+ *
+ * variant="sidebar" (default): fixed-width, desktop left column — hidden
+ * below lg since the desktop 3-column layout only shows at that width.
+ * variant="mobile": full-width, always visible — used inside the Stats
+ * tab of the mobile tabbed layout, where visibility is already handled
+ * by which tab is active, not by viewport width.
  *
  * Drop this in the page layout alongside the filter bar + grid, e.g.:
  *   <div className="flex gap-8">
@@ -20,7 +26,7 @@ const SOURCE_LABELS = {
  *     <main>...filter bar + card grid...</main>
  *   </div>
  */
-export default function RegisterStats() {
+export default function RegisterStats({ variant = "sidebar" }) {
   const [stats, setStats] = useState(null);
   const [error, setError] = useState(false);
 
@@ -49,8 +55,13 @@ export default function RegisterStats() {
   const bankTotal = banks.reduce((sum, b) => sum + b.count, 0) || 1;
   const totalsTotal = totals.total || 1;
 
+  const wrapperClass =
+    variant === "mobile"
+      ? "w-full flex flex-col gap-8 pt-1"
+      : "w-64 shrink-0 hidden lg:flex flex-col gap-8 pt-1";
+
   return (
-    <aside className="w-64 shrink-0 hidden lg:flex flex-col gap-8 pt-1">
+    <aside className={wrapperClass}>
       <RegisterSection title="By source" loading={!stats}>
         {sources.map((s) => (
           <StatRow
