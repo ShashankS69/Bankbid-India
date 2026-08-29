@@ -209,7 +209,7 @@ function SaveSearchForm({ filters }) {
         />
         <input
           type="tel"
-          placeholder="Phone (optional)"
+          placeholder="Phone"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           className="w-40 bg-ledger border border-ledger-line rounded-sm px-3 py-2 text-sm text-ink placeholder:text-slate-dim font-mono"
@@ -226,7 +226,7 @@ function SaveSearchForm({ filters }) {
         </button>
         <button
           onClick={() => setOpen(false)}
-          className="text-xs font-mono uppercase tracking-wide text-slate-dim hover:text-rust transition-colors"
+          className="text-xs font-mono uppercase tracking-wide !text-red-600 hover:!text-red-800 transition-colors"
         >
           Cancel
         </button>

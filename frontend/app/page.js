@@ -177,6 +177,13 @@ export default function Home() {
               actually afford to enter, since a lower reserve price doesn&apos;t
               always mean a lower upfront deposit.
             </p>
+          <div className="h-4"></div>
+            <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
+              Save this Search
+            </p>
+            <p className="text-slate text-sm leading-relaxed font-body">
+              Lets users save their desired search criteria and receive notifications when new properties match their filters.
+            </p>
           </div>
 
           <div>
