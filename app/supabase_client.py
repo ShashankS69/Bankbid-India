@@ -107,6 +107,7 @@ def query_listings(
     max_emd: float | None = None,
     price_availability: str | None = None,
     sort: str | None = None,
+    since: str | None = None,   # ISO timestamp — only listings with fetched_at >= this
     limit: int = 50,
     offset: int = 0
 ) -> tuple[list[dict], int]:
@@ -132,6 +133,8 @@ def query_listings(
         params.append(("reserve_price", f"lte.{max_price}"))
     if max_emd is not None:
         params.append(("emd", f"lte.{max_emd}"))
+    if since:
+        params.append(("fetched_at", f"gte.{since}"))
 
     if price_availability == "priced":
         params.append(("reserve_price", "gt.0"))

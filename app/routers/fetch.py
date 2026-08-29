@@ -4,6 +4,7 @@ from app.scrapers.bankauctions import fetch_bankauctions
 from app.scrapers.auctiontiger import fetch_auctiontiger
 from app.normalise import normalise_ibapi, normalise_bankauctions, normalise_auctiontiger
 from app.supabase_client import upsert_listings, query_listings, get_all_source_ids
+from app.notifications import run_saved_search_alerts
 
 router = APIRouter()
 
@@ -97,8 +98,9 @@ def fetch_and_upsert_auctiontiger(
 def fetch_all_sources():
     """
     Triggers incremental fetch from all 3 sources in sequence.
-    This is what the frontend 'Fetch Latest' button calls.
-    Returns per-source counts + grand total.
+    This is what the frontend 'Fetch Latest' button calls, and what the
+    scheduled GitHub Actions workflow calls every 6 hours.
+    Returns per-source counts + grand total, plus saved-search alert results.
     """
     results = {}
     total_pushed = 0
@@ -134,7 +136,15 @@ def fetch_all_sources():
     except Exception as e:
         results["auctiontiger"] = {"error": str(e)}
 
+    # Saved-search alerts — runs after all upserts finish, so it only
+    # ever sees listings that are actually in Supabase by this point.
+    try:
+        alert_results = run_saved_search_alerts()
+    except Exception as e:
+        alert_results = {"error": str(e)}
+
     return {
         "total_new_listings": total_pushed,
         "sources": results,
+        "saved_search_alerts": alert_results,
     }
