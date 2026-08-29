@@ -1,0 +1,27 @@
+name: Scheduled Fetch Latest Listings
+
+on:
+  schedule:
+    # Runs every 6 hours (00:00, 06:00, 12:00, 18:00 UTC).
+    # Adjust the cron expression if you want a different cadence.
+    - cron: "0 */6 * * *"
+  workflow_dispatch: {}  # lets you trigger it manually from the Actions tab too
+
+jobs:
+  fetch-latest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger /api/fetch-all
+        run: |
+          echo "Calling fetch-all on Render..."
+          response=$(curl -s -w "\n%{http_code}" -X POST "${{ secrets.RENDER_API_BASE }}/api/fetch-all")
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+
+          echo "Response body: $body"
+          echo "HTTP status: $http_code"
+
+          if [ "$http_code" -ge 400 ]; then
+            echo "fetch-all failed with status $http_code"
+            exit 1
+          fi
