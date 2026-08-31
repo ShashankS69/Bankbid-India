@@ -170,9 +170,12 @@ export default function MapViewInner({ lots, onSelectCity }) {
           city: (city.charAt(0).toUpperCase() + city.slice(1)).trim(),
           coords,
           lots: [],
+          locations: new Set(),
         });
       }
-      map.get(key).lots.push(lot);
+      const entry = map.get(key);
+      entry.lots.push(lot);
+      if (lot.location) entry.locations.add(lot.location.trim());
     }
 
     return Array.from(map.values()).map((cluster) => {
@@ -192,6 +195,7 @@ export default function MapViewInner({ lots, onSelectCity }) {
 
       return {
         ...cluster,
+        locations: Array.from(cluster.locations),
         count: cluster.lots.length,
         minPrice,
         maxPrice,
@@ -258,7 +262,7 @@ export default function MapViewInner({ lots, onSelectCity }) {
 
                 {onSelectCity && (
                   <button
-                    onClick={() => onSelectCity(cluster.city)}
+                    onClick={() => onSelectCity(cluster.locations.length ? cluster.locations : [cluster.city])}
                     className="w-full mt-2 font-mono text-[11px] uppercase tracking-wider py-1.5 px-3 rounded-sm border border-gold text-gold hover:bg-gold hover:text-ledger transition-colors"
                   >
                     Filter lots by {cluster.city}

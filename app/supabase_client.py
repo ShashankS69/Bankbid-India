@@ -111,6 +111,8 @@ def query_listings(
     price_availability: str | None = None,
     has_rental_yield: str | None = None,   # "true" | "false" | None
     closing_within: int | None = None,     # 3 | 7 | 14 | None -- Feature #6
+    locations: str | None = None,          # pipe-separated exact location values (map filter)
+    auction_date: str | None = None,       # YYYY-MM-DD (calendar filter)
     sort: str | None = None,
     since: str | None = None,   # ISO timestamp — only listings with fetched_at >= this
     limit: int = 50,
@@ -186,6 +188,19 @@ def query_listings(
         horizon = today + datetime.timedelta(days=closing_within)
         params.append(("auction_date_parsed", f"gte.{today.isoformat()}"))
         params.append(("auction_date_parsed", f"lte.{horizon.isoformat()}"))
+
+    # Map filter: exact match on any of the provided location strings
+    # (from clustering logic in MapViewInner.jsx)
+    if locations:
+        values = [v for v in locations.split("|") if v]
+        if values:
+            or_clause = ",".join(f"location.eq.{v}" for v in values)
+            params.append(("or", f"({or_clause})"))
+
+    # Calendar filter: match exact auction_date_parsed to the given day
+    # auction_date_parsed is a clean ISO date column (YYYY-MM-DD)
+    if auction_date:
+        params.append(("auction_date_parsed", f"eq.{auction_date}"))
 
     sort_map = {
         # auction_date is free text (e.g. "10 September 2026") and varies

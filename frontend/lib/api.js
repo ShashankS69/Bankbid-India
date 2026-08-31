@@ -1,5 +1,6 @@
 // Central place to point at your FastAPI backend.
 // Local dev: uvicorn is running at http://127.0.0.1:8000 (confirmed from your terminal).
+
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://127.0.0.1:8000";
 
 /**
@@ -14,6 +15,15 @@ export async function fetchListings(filters = {}) {
   const params = new URLSearchParams();
 
   if (filters.city) params.set("city", filters.city);
+
+  if (filters.locations && filters.locations.length) {
+    params.set("locations", filters.locations.join("|"));
+  }
+
+  if (filters.auctionDate) {
+    params.set("auction_date", filters.auctionDate);
+  }
+
   if (filters.bank) params.set("bank_name", filters.bank);   // FilterBar uses `bank`, backend expects `bank_name`
   if (filters.property_type) params.set("property_type", filters.property_type);
   if (filters.state) params.set("state", filters.state);
@@ -25,6 +35,7 @@ export async function fetchListings(filters = {}) {
   if (filters.has_rental_yield) params.set("has_rental_yield", filters.has_rental_yield);   // Rental yield availability filter (Feature #5)
   if (filters.closing_within) params.set("closing_within", filters.closing_within);   // Closing-soon filter (Feature #6)
   if (filters.sort) params.set("sort", filters.sort);
+
   params.set("limit", filters.limit || 24);
   params.set("offset", filters.offset || 0);
 
@@ -37,6 +48,7 @@ export async function fetchListings(filters = {}) {
   }
 
   const data = await res.json();
+
   // { count, listings } -> normalize to { total, results }
   return { total: data.count, results: data.listings };
 }
@@ -65,6 +77,7 @@ export async function fetchAllListings(filters = {}, onProgress) {
       limit: PAGE_SIZE,
       offset,
     });
+
     total = count ?? 0;
     all.push(...(results || []));
     offset += PAGE_SIZE;
@@ -85,9 +98,11 @@ export async function fetchAllListings(filters = {}, onProgress) {
  */
 export async function triggerFetchAll() {
   const res = await fetch(`${API_BASE}/api/fetch-all`, { method: "POST" });
+
   if (!res.ok) {
     throw new Error(`Fetch-all failed: ${res.status}`);
   }
+
   return res.json();
 }
 
@@ -97,9 +112,11 @@ export async function triggerFetchAll() {
  */
 export async function fetchSourceSummary() {
   const res = await fetch(`${API_BASE}/api/listings/stats/summary`, { cache: "no-store" });
+
   if (!res.ok) {
     throw new Error(`Failed to fetch summary: ${res.status}`);
   }
+
   return res.json();
 }
 

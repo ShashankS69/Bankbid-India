@@ -3,30 +3,39 @@
 import { useState } from "react";
 
 import FilterBar from "@/components/FilterBar";
+
 import ListingGrid from "@/components/ListingGrid";
+
 import MapView from "@/components/MapView";
+
 import FetchLatestButton from "@/components/FetchLatestButton";
+
 import RegisterStats from "@/components/RegisterStats";
+
 import CalendarView from "@/components/CalendarView";
 
 const TABS = [
   { id: "property", label: "Property" },
+
   { id: "stats", label: "Stats" },
+
   { id: "calendar", label: "Calendar" },
+
   { id: "map", label: "Map" },
 ];
 
 export default function MobileHome({
-  filters,
-  setFilters,
-  refreshKey,
-  setRefreshKey,
-  lots,
-  loadingCalendar,
-  calendarError,
-  progress,
-  handleSelectCity,
-}) {
+  filters = {},
+  setFilters = () => {},
+  refreshKey = 0,
+  setRefreshKey = () => {},
+  lots = [],
+  loadingCalendar = false,
+  calendarError = null,
+  progress = { loaded: 0, total: 0 },
+  handleSelectCity = () => {},
+  handleSelectDate = () => {},
+} = {}) {
   const [activeTab, setActiveTab] = useState("property");
   const [noteOpen, setNoteOpen] = useState(false);
 
@@ -37,9 +46,17 @@ export default function MobileHome({
         <p className="font-mono text-[10px] tracking-widest text-gold uppercase">
           SARFAESI Auction Register
         </p>
+
         <div className="flex items-center gap-2">
           <span className="bankbid-emblem text-gold" aria-hidden="true">
-            <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" width="24" height="24">
+            <svg
+              viewBox="0 0 48 48"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+              role="img"
+              width="24"
+              height="24"
+            >
               <path
                 d="M24 6 L28.5 18.5 L41.5 19.5 L31.3 27.6 L34.8 40 L24 32.8 L13.2 40 L16.7 27.6 L6.5 19.5 L19.5 18.5 Z"
                 stroke="currentColor"
@@ -50,6 +67,7 @@ export default function MobileHome({
               />
             </svg>
           </span>
+
           <h1 className="font-display text-2xl text-ink leading-tight">
             BankBid <span className="italic text-gold">India</span>
           </h1>
@@ -71,6 +89,7 @@ export default function MobileHome({
             {tab.label}
           </button>
         ))}
+
         {activeTab === "property" && (
           <button
             onClick={() => setNoteOpen((v) => !v)}
@@ -78,7 +97,13 @@ export default function MobileHome({
             aria-expanded={noteOpen}
             className="w-9 h-9 flex-shrink-0 flex items-center justify-center border-l border-ledger-line/60 text-gold"
           >
-            <span className={`transition-transform ${noteOpen ? "rotate-180" : ""}`}>▾</span>
+            <span
+              className={`transition-transform ${
+                noteOpen ? "rotate-180" : ""
+              }`}
+            >
+              ▾
+            </span>
           </button>
         )}
       </div>
@@ -91,9 +116,11 @@ export default function MobileHome({
               <p className="font-mono text-lg font-extrabold tracking-widest text-gold uppercase mb-2">
                 Note
               </p>
+
               <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
                 What is EMD?
               </p>
+
               <p className="text-slate text-sm leading-relaxed font-body">
                 EMD (Earnest Money Deposit) is a refundable deposit you must pay
                 upfront to be eligible to bid in a bank auction — separate from
@@ -103,10 +130,13 @@ export default function MobileHome({
                 actually afford to enter, since a lower reserve price doesn&apos;t
                 always mean a lower upfront deposit.
               </p>
+
               <div className="h-4"></div>
+
               <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
                 Save this Search
               </p>
+
               <p className="text-slate text-sm leading-relaxed font-body">
                 Lets users save their desired search criteria and receive
                 notifications when new properties match their filters.
@@ -115,10 +145,15 @@ export default function MobileHome({
           )}
 
           <div className="flex justify-end">
-            <FetchLatestButton onDone={() => setRefreshKey((k) => k + 1)} />
+            <FetchLatestButton
+              onDone={() => setRefreshKey((k) => k + 1)}
+            />
           </div>
 
-          <FilterBar filters={filters} onChange={setFilters} />
+          <FilterBar
+            filters={filters}
+            onChange={setFilters}
+          />
 
           <ListingGrid
             filters={filters}
@@ -143,6 +178,7 @@ export default function MobileHome({
             <p className="font-mono text-lg font-extrabold tracking-widest text-gold uppercase">
               Auction Calendar
             </p>
+
             <p className="text-slate text-sm mt-2 leading-relaxed font-body">
               View upcoming bank property auctions by date. Select a highlighted
               date to see the lots scheduled for auction.
@@ -161,6 +197,10 @@ export default function MobileHome({
             lots={lots}
             loading={loadingCalendar}
             error={calendarError}
+            onSelectDate={(date) => {
+              setActiveTab("property");
+              handleSelectDate(date);
+            }}
           />
         </div>
       )}
@@ -172,13 +212,17 @@ export default function MobileHome({
             <p className="font-mono text-lg font-extrabold tracking-widest text-gold uppercase">
               Auction Lot Map
             </p>
+
             <p className="text-slate text-sm mt-1 leading-relaxed font-body">
               Explore property density across Indian cities. Click a cluster
               marker to filter the ledger.
             </p>
           </div>
 
-          <MapView lots={lots} onSelectCity={handleSelectCity} />
+          <MapView
+            lots={lots}
+            onSelectCity={handleSelectCity}
+          />
         </div>
       )}
     </main>

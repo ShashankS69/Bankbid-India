@@ -60,10 +60,32 @@ export default function Home() {
     };
   }, [refreshKey]);
 
-  const handleSelectCity = (city) => {
+  const handleSelectCity = (locations) => {
+    // fetchListings() (lib/api.js) reads filters.locations, not
+    // filters.cityList — the old key name meant this filter was never
+    // actually sent to the backend, so clicking a map cluster re-fetched
+    // the full unfiltered dataset instead of filtering by that location.
     setFilters((prev) => ({
       ...prev,
-      city,
+      locations,
+      city: undefined,
+      offset: 0,
+      limit: 57,
+    }));
+  };
+
+  const handleSelectDate = (date) => {
+    // Build the "YYYY-MM-DD" string from LOCAL calendar components.
+    // date.toISOString() converts to UTC first, which shifts the date
+    // back by one day for any timezone ahead of UTC (e.g. IST, UTC+5:30) —
+    // that was the cause of "select Sept 2, get Sept 1's listings".
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    setFilters((prev) => ({
+      ...prev,
+      auctionDate: `${year}-${month}-${day}`,
       offset: 0,
       limit: 57,
     }));
@@ -88,6 +110,7 @@ export default function Home() {
         calendarError={calendarError}
         progress={progress}
         handleSelectCity={handleSelectCity}
+        handleSelectDate={handleSelectDate}
       />
     );
   }
@@ -102,7 +125,14 @@ export default function Home() {
 
           <div className="flex items-center gap-2">
             <span className="bankbid-emblem text-gold" aria-hidden="true">
-              <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" width="32" height="32">
+              <svg
+                viewBox="0 0 48 48"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+                role="img"
+                width="32"
+                height="32"
+              >
                 <path
                   d="M24 6 L28.5 18.5 L41.5 19.5 L31.3 27.6 L34.8 40 L24 32.8 L13.2 40 L16.7 27.6 L6.5 19.5 L19.5 18.5 Z"
                   stroke="currentColor"
@@ -113,13 +143,28 @@ export default function Home() {
                 />
               </svg>
             </span>
+
             <h1 className="font-display text-4xl md:text-5xl text-ink mt-2 leading-tight">
               BankBid <span className="italic text-gold">India</span>
             </h1>
+
             <span className="bankbid-emblem" aria-hidden="true">
-              <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" width="36" height="36">
+              <svg
+                viewBox="0 0 48 48"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+                role="img"
+                width="36"
+                height="36"
+              >
                 { /* Refined architectural emblem: layered pediment, central arch, flanking columns */ }
-                <g stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none">
+                <g
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  fill="none"
+                >
                   { /* base line */ }
                   <path d="M6 36h36" />
 
@@ -192,6 +237,7 @@ export default function Home() {
             >
               ★ Compare Properties
             </Link>
+
             <FetchLatestButton
               onDone={() => setRefreshKey((k) => k + 1)}
             />
@@ -206,6 +252,7 @@ export default function Home() {
               <p className="font-mono text-lg font-extrabold tracking-widest text-gold uppercase">
                 Notes
               </p>
+
               <span className="text-gold text-3xl leading-none flex items-center -mt-1">
                 {noteOpen ? "^" : "⌄"}
               </span>
@@ -217,6 +264,7 @@ export default function Home() {
                   <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
                     What is EMD?
                   </p>
+
                   <p className="text-slate text-sm leading-relaxed font-body">
                     EMD (Earnest Money Deposit) is a refundable deposit you must pay
                     upfront to be eligible to bid in a bank auction — separate from
@@ -234,6 +282,7 @@ export default function Home() {
                   <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
                     Save this Search
                   </p>
+
                   <p className="text-slate text-sm leading-relaxed font-body">
                     Lets users save their desired search criteria and receive notifications when new properties match their filters.
                   </p>
@@ -245,6 +294,7 @@ export default function Home() {
                   <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
                     Rental Yield
                   </p>
+
                   <p className="text-slate text-sm leading-relaxed font-body">
                     Listings in cities covered by NHB RESIDEX also show an estimated
                     rental yield alongside the reserve price it would come in handy if you&apos;re
@@ -260,6 +310,7 @@ export default function Home() {
                   <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
                     AUCTION SOONEST / LATEST
                   </p>
+
                   <p className="text-slate text-sm leading-relaxed font-body">
                     <p>Sorts listings by their scheduled auction date:</p>
                     <p><b>Soonest</b> puts auctions happening next at the top, useful if you're
@@ -267,22 +318,25 @@ export default function Home() {
                     <p><b>Latest</b> flips it, surfacing auctions further out, useful
                     if you want more time to arrange financing or do due
                     diligence before bidding.</p>
-                   </p>
-                   <div className="perf-divider" />
-                    <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
+                  </p>
+
+                  <div className="perf-divider" />
+
+                  <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
                     vs. RESIDEX
                   </p>
+
                   <p className="text-slate text-sm leading-relaxed font-body">
                     Compares the auction&apos;s reserve price per sq ft against NHB&apos;s
-                    official RESIDEX housing price index for that city and quarter — a
-                   quick read on whether a lot is priced below or above the going market
-                   rate. A negative % means the reserve price is cheaper than comparable
-                    non-auction property nearby; a positive % means you&apos;d likely pay
-                    more. Only shown for listings with an estimated area in a
+                    official RESIDEX housing price index for that city and quarter —
+                    a quick read on whether a lot is priced below or above the going
+                    market rate. A negative % means the reserve price is cheaper than
+                    comparable non-auction property nearby; a positive % means you&apos;d
+                    likely pay more. Only shown for listings with an estimated area in a
                     RESIDEX-covered city, and it&apos;s a rough citywide signal rather than
                     a valuation — it doesn&apos;t account for the specific building, floor,
                     or locality.
-                </p>
+                  </p>
                 </div>
 
                 <div className="perf-divider" />
@@ -291,6 +345,7 @@ export default function Home() {
                   <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
                     Compare Properties
                   </p>
+
                   <p className="text-slate text-sm leading-relaxed font-body">
                     Star the properties to compare them side by side — see reserve prices, EMD amounts, RESIDEX comparisons, and estimated rental yields all at once for the properties that have them available.
                   </p>
@@ -298,6 +353,7 @@ export default function Home() {
               </div>
             )}
           </div>
+
           <div>
             <div className="mb-5">
               <p className="font-mono text-lg font-extrabold tracking-widest text-gold uppercase">
@@ -322,6 +378,7 @@ export default function Home() {
               lots={lots}
               loading={loadingCalendar}
               error={calendarError}
+              onSelectDate={handleSelectDate}
             />
           </div>
 
@@ -331,6 +388,7 @@ export default function Home() {
               <p className="font-mono text-lg font-extrabold tracking-widest text-gold uppercase">
                 Auction Lot Map
               </p>
+
               <p className="text-slate text-sm mt-1 leading-relaxed font-body max-w-md">
                 Explore property density across Indian cities. Click a cluster marker to filter the ledger.
               </p>
