@@ -29,6 +29,12 @@ const PRICE_AVAILABILITY_OPTIONS = [
   { value: "on_request", label: "Price on Request Only" },
 ];
 
+const RENTAL_YIELD_OPTIONS = [
+  { value: "", label: "All Properties" },
+  { value: "true", label: "With Rental Yield Estimate" },
+  { value: "false", label: "Without Rental Yield Estimate" },
+];
+
 const BANKS = [
   "State Bank of India",
   "Bank of India",
@@ -283,6 +289,7 @@ export default function FilterBar({ filters, onChange }) {
     filters.min_price ||
     filters.max_price ||
     filters.price_availability ||
+    filters.has_rental_yield ||
     filters.max_emd ||
     filters.sort;
 
@@ -343,7 +350,10 @@ export default function FilterBar({ filters, onChange }) {
             </option>
           ))}
         </select>
+      </div>
 
+      {/* Source + availability + rental yield + sorting */}
+      <div className="flex flex-col md:flex-row gap-3 md:items-start md:flex-wrap">
         <select
           value={filters.source || ""}
           onChange={(e) => set("source", e.target.value)}
@@ -357,9 +367,45 @@ export default function FilterBar({ filters, onChange }) {
             </option>
           ))}
         </select>
+
+        <select
+          value={filters.price_availability || ""}
+          onChange={(e) => set("price_availability", e.target.value)}
+          className="bg-ledger border border-ledger-line rounded-sm px-3 py-2 text-sm text-ink font-body min-w-[190px]"
+        >
+          {PRICE_AVAILABILITY_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={filters.has_rental_yield || ""}
+          onChange={(e) => set("has_rental_yield", e.target.value)}
+          className="bg-ledger border border-ledger-line rounded-sm px-3 py-2 text-sm text-ink font-body min-w-[210px]"
+        >
+          {RENTAL_YIELD_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={filters.sort || "auction_soonest"}
+          onChange={(e) => set("sort", e.target.value)}
+          className="bg-ledger border border-ledger-line rounded-sm px-3 py-2 text-sm text-ink font-body min-w-[180px]"
+        >
+          {SORT_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
       </div>
 
-      {/* Price + EMD + availability + sorting */}
+      {/* Price range + EMD */}
       <div className="flex flex-col md:flex-row gap-3 md:items-start md:flex-wrap">
         <div className="flex items-start gap-2">
           <PriceInput
@@ -382,30 +428,6 @@ export default function FilterBar({ filters, onChange }) {
           value={filters.max_emd}
           onCommit={(v) => set("max_emd", v)}
         />
-
-        <select
-          value={filters.price_availability || ""}
-          onChange={(e) => set("price_availability", e.target.value)}
-          className="bg-ledger border border-ledger-line rounded-sm px-3 py-2 text-sm text-ink font-body min-w-[190px]"
-        >
-          {PRICE_AVAILABILITY_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={filters.sort || "auction_soonest"}
-          onChange={(e) => set("sort", e.target.value)}
-          className="bg-ledger border border-ledger-line rounded-sm px-3 py-2 text-sm text-ink font-body min-w-[180px]"
-        >
-          {SORT_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
       </div>
 
       <div className="flex items-center gap-4">

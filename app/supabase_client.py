@@ -3,6 +3,8 @@ import json
 import os
 from dotenv import load_dotenv
 
+from app.residex import get_covered_city_names
+
 load_dotenv()
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -106,6 +108,7 @@ def query_listings(
     max_price: float | None = None,
     max_emd: float | None = None,
     price_availability: str | None = None,
+    has_rental_yield: str | None = None,   # "true" | "false" | None
     sort: str | None = None,
     since: str | None = None,   # ISO timestamp — only listings with fetched_at >= this
     limit: int = 50,
@@ -140,6 +143,35 @@ def query_listings(
         params.append(("reserve_price", "gt.0"))
     elif price_availability == "on_request":
         params.append(("or", "(reserve_price.is.null,reserve_price.eq.0)"))
+
+    # has_rental_yield filters for listings that would (or wouldn't) get a
+    # non-null roi_estimate from get_roi_estimate() -- i.e. those needing
+    # both an area estimate AND a RESIDEX-covered city. There's no stored
+    # column for this, so it's expressed as a location match against every
+    # covered city name.
+    if has_rental_yield in ("true", "false"):
+        covered_cities = get_covered_city_names()
+
+        if has_rental_yield == "true":
+            # Needs BOTH: an area estimate present, AND the location
+            # matching at least one covered city (OR across cities).
+            params.append(("area_sqft_estimated", "not.is.null"))
+            if covered_cities:
+                city_or = ",".join(f"location.ilike.*{c}*" for c in covered_cities)
+                params.append(("or", f"({city_or})"))
+            else:
+                # RESIDEX cache is empty -- nothing can qualify.
+                params.append(("id", "eq.-1"))
+        else:
+            # "false" = would get a null roi_estimate: area missing, OR
+            # location doesn't match ANY covered city. The second half is
+            # an AND of not.ilike across every city, nested inside the OR
+            # via PostgREST's and()/or() grouping syntax.
+            if covered_cities:
+                not_any_city = ",".join(f"location.not.ilike.*{c}*" for c in covered_cities)
+                params.append(("or", f"(area_sqft_estimated.is.null,and({not_any_city}))"))
+            # If RESIDEX cache is empty, every listing already qualifies
+            # as "without" -- no filter needed.
 
     sort_map = {
         "auction_soonest": "auction_date.asc.nullslast",

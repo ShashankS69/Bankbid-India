@@ -4,7 +4,7 @@ from collections import Counter
 
 from fastapi import APIRouter, HTTPException, Query
 from app.supabase_client import query_listings
-from app.residex import get_market_comparison
+from app.residex import get_market_comparison, get_roi_estimate
 import requests
 import os
 
@@ -34,6 +34,21 @@ def _attach_residex_comparison(listing: dict) -> dict:
     """
     city = listing.get("city") or listing.get("location") or listing.get("district")
     listing["residex_comparison"] = get_market_comparison(
+        city=city,
+        reserve_price=listing.get("reserve_price"),
+        area_sqft_estimated=listing.get("area_sqft_estimated"),
+    )
+    return listing
+
+
+def _attach_roi_estimate(listing: dict) -> dict:
+    """
+    Adds a `roi_estimate` field to a listing dict (see get_roi_estimate
+    docstring), or None under the same conditions residex_comparison
+    returns None.
+    """
+    city = listing.get("city") or listing.get("location") or listing.get("district")
+    listing["roi_estimate"] = get_roi_estimate(
         city=city,
         reserve_price=listing.get("reserve_price"),
         area_sqft_estimated=listing.get("area_sqft_estimated"),
@@ -74,7 +89,6 @@ def _fetch_all_bank_names() -> list[str]:
             break
         offset += page_size
 
-    return all_names
     return all_names
 
 
@@ -121,6 +135,7 @@ def get_listings(
     max_price: float | None = Query(default=None),
     max_emd: float | None = Query(default=None),
     price_availability: str | None = Query(default=None),
+    has_rental_yield: str | None = Query(default=None, description="true | false"),
     sort: str | None = Query(default=None),
     limit: int = Query(default=50, le=500),
     offset: int = Query(default=0),
@@ -130,7 +145,9 @@ def get_listings(
     All filters are optional — returns all listings if no filters provided.
     Each listing includes a `residex_comparison` field (null if the
     listing's city isn't covered by NHB RESIDEX or lacks the area
-    estimate needed to compute price/sqft).
+    estimate needed to compute price/sqft) and a `roi_estimate` field
+    (null under the same conditions) with an estimated gross rental
+    yield vs. the auction reserve price.
     """
     results, total = query_listings(
         city=city,
@@ -142,11 +159,12 @@ def get_listings(
         max_price=max_price,
         max_emd=max_emd,
         price_availability=price_availability,
+        has_rental_yield=has_rental_yield,
         sort=sort,
         limit=limit,
         offset=offset,
     )
-    results = [_attach_residex_comparison(r) for r in results]
+    results = [_attach_roi_estimate(_attach_residex_comparison(r)) for r in results]
     return {"count": total, "listings": results}
 
 
@@ -161,7 +179,7 @@ def get_listing_by_id(listing_id: str):
     if response.status_code != 200 or not response.json():
         raise HTTPException(status_code=404, detail="Listing not found")
     listing = response.json()[0]
-    return _attach_residex_comparison(listing)
+    return _attach_roi_estimate(_attach_residex_comparison(listing))
 
 
 @router.get("/listings/stats/summary")

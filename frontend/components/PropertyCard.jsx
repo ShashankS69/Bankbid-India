@@ -29,6 +29,7 @@ export default function PropertyCard({ listing, compact = false }) {
     source_url,
     area_sqft_estimated,
     residex_comparison,
+    roi_estimate,
     previous_price,
     price_changed_at,
   } = listing;
@@ -212,6 +213,21 @@ export default function PropertyCard({ listing, compact = false }) {
           {Math.abs(residex_comparison.pct_vs_market)}%{" "}
           {residex_comparison.pct_vs_market < 0 ? "below" : "above"} RESIDEX{" "}
           {residex_comparison.city_matched} ({residex_comparison.quarter_label})
+        </p>
+      )}
+
+      {roi_estimate && (
+        <p
+          className={[
+            "text-xs font-mono -mt-1",
+            roi_estimate.comparison === "below" ? "text-rust" : "text-moss",
+          ].join(" ")}
+          title={`Estimated using NHB RESIDEX ${roi_estimate.city_matched} composite price (${roi_estimate.quarter_label}) and an assumed ${roi_estimate.assumed_yield_pct}% gross yield`}
+        >
+          Rental yield: ~{roi_estimate.effective_yield_pct}%
+          {roi_estimate.comparison !== "at" && (
+            <> ({roi_estimate.comparison} typical {roi_estimate.assumed_yield_pct}%)</>
+          )}
         </p>
       )}
 

@@ -211,6 +211,29 @@ export default function Home() {
             <p className="text-slate text-sm leading-relaxed font-body">
               Lets users save their desired search criteria and receive notifications when new properties match their filters.
             </p>
+          <div className="h-4"></div>
+            <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
+              Rental Yield
+            </p>
+            <p className="text-slate text-sm leading-relaxed font-body">
+              Listings in cities covered by NHB RESIDEX also show an estimated
+              rental yield alongside the reserve price it would come in handy if you&apos;re
+              evaluating a property as an investment rather than for personal
+              use, since it points to the ongoing return you could expect
+              relative to what you&apos;d pay to win the auction.
+            </p>
+             <div className="h-4"></div>
+            <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
+             AUCTION SOONEST / LATEST
+            </p>
+            <p className="text-slate text-sm leading-relaxed font-body">
+             <p>Sorts listings by their scheduled auction date:</p>
+             <p><b>Soonest</b> puts auctions happening next at the top, useful if you're
+             ready to bid now and want to see what's closing fastest.</p>
+             <p><b>Latest</b> flips it, surfacing auctions further out, useful
+             if you want more time to arrange financing or do due
+             diligence before bidding.</p>
+            </p>
           </div>
           <div>
             <div className="mb-5">
