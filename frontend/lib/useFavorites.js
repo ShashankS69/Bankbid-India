@@ -1,10 +1,19 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useSyncExternalStore, useCallback } from "react";
 
 const STORAGE_KEY = "bankbid_favorites";
 
-function readStorage() {
+// Single in-memory source of truth, shared by every component that calls
+// useFavorites() — this is what fixes the bug where sibling PropertyCards
+// each had their own stale copy of favorites and overwrote each other's
+// localStorage writes when starred back to back. All instances now read
+// and write through this one store instead of independent useState calls.
+let store = {};
+let initialized = false;
+const listeners = new Set();
+
+function loadFromStorage() {
   if (typeof window === "undefined") return {};
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -14,12 +23,71 @@ function readStorage() {
   }
 }
 
-function writeStorage(favorites) {
+function persist() {
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites));
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
   } catch {
     // localStorage unavailable (private browsing, quota exceeded) -- fail silently
   }
+}
+
+function ensureInitialized() {
+  if (!initialized && typeof window !== "undefined") {
+    store = loadFromStorage();
+    initialized = true;
+  }
+}
+
+function emitChange() {
+  listeners.forEach((listener) => listener());
+}
+
+function subscribe(listener) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+function getSnapshot() {
+  ensureInitialized();
+  return store;
+}
+
+function getServerSnapshot() {
+  return {}; // SSR has no localStorage -- always empty on the server
+}
+
+function toggleFavorite(listing) {
+  ensureInitialized();
+  const next = { ...store };
+  if (next[listing.id]) {
+    delete next[listing.id];
+  } else {
+    next[listing.id] = listing;
+  }
+  store = next;
+  persist();
+  emitChange();
+}
+
+function removeFavorite(id) {
+  ensureInitialized();
+  const next = { ...store };
+  delete next[id];
+  store = next;
+  persist();
+  emitChange();
+}
+
+// Cross-TAB sync (separate browser tabs/windows) -- same-tab sync between
+// sibling components is handled by the shared `store` + emitChange() above,
+// not by this event, which never fires for writes made in the same tab.
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (e) => {
+    if (e.key === STORAGE_KEY) {
+      store = loadFromStorage();
+      emitChange();
+    }
+  });
 }
 
 /**
@@ -31,48 +99,9 @@ function writeStorage(favorites) {
  * a snapshot rather than re-fetched. Fine for MVP.
  */
 export default function useFavorites() {
-  const [favorites, setFavorites] = useState({});
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    setFavorites(readStorage());
-    setLoaded(true);
-
-    // Keep favorites in sync if changed in another tab/window
-    function handleStorage(e) {
-      if (e.key === STORAGE_KEY) {
-        setFavorites(readStorage());
-      }
-    }
-    window.addEventListener("storage", handleStorage);
-    return () => window.removeEventListener("storage", handleStorage);
-  }, []);
+  const favorites = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   const isFavorite = useCallback((id) => Boolean(favorites[id]), [favorites]);
-
-  const toggleFavorite = useCallback((listing) => {
-    if (!listing || !listing.id) return;
-    
-    setFavorites((prev) => {
-      const next = { ...prev };
-      if (next[listing.id]) {
-        delete next[listing.id];
-      } else {
-        next[listing.id] = listing;
-      }
-      writeStorage(next);
-      return next;
-    });
-  }, []);
-
-  const removeFavorite = useCallback((id) => {
-    setFavorites((prev) => {
-      const next = { ...prev };
-      delete next[id];
-      writeStorage(next);
-      return next;
-    });
-  }, []);
 
   return {
     favorites,                       // { [id]: listing }
@@ -80,6 +109,6 @@ export default function useFavorites() {
     isFavorite,
     toggleFavorite,
     removeFavorite,
-    loaded,
+    loaded: initialized,
   };
 }

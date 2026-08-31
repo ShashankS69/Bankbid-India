@@ -15,7 +15,7 @@ export default function ListingGrid({ filters, onFilterChange, refreshKey, compa
     setMounted(true);
   }, []);
 
-  const limit = filters.limit || 54;
+  const limit = filters.limit || 57;
   const offset = filters.offset || 0;
   const currentPage = Math.floor(offset / limit) + 1;
   const totalPages = total ? Math.ceil(total / limit) : 1;
@@ -104,20 +104,23 @@ export default function ListingGrid({ filters, onFilterChange, refreshKey, compa
   const startIdx = offset + 1;
   const endIdx = Math.min(offset + listings.length, total || offset + listings.length);
 
-  const topListings = listings.slice(0, 12);
-  const secondaryListings = listings.slice(12);
+  // Rows 1-3: 3 cards per row (9 cards). Row 4 onward: 6 cards per row.
+  // 9 + 6-per-row is why the page size is 57 (9 + 8*6 = 57 exactly).
+  const topListings = listings.slice(0, 9);
+  const secondaryListings = listings.slice(9);
 
   const portalSlot = mounted ? document.getElementById("full-width-listings-slot") : null;
 
   const bottomContent = (
     <div className="flex flex-col gap-6 w-full">
-      {/* ROW 5 ONWARDS: PROPERTY CARDS SPANNING FULL PAGE WIDTH */}
+      {/* ROW 4 ONWARDS: PROPERTY CARDS SPANNING FULL PAGE WIDTH, 6 PER ROW */}
       {secondaryListings.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 items-start">
           {secondaryListings.map((listing, idx) => (
             <PropertyCard
-              key={listing.id ?? `${listing.source}-${listing.source_id}` ?? idx + 12}
+              key={listing.id ?? `${listing.source}-${listing.source_id}` ?? idx + 9}
               listing={listing}
+              compact
             />
           ))}
         </div>
@@ -266,8 +269,8 @@ export default function ListingGrid({ filters, onFilterChange, refreshKey, compa
         </div>
       )}
 
-      {/* ROWS 1–4: 3 PROPERTY CARDS PER ROW (12 CARDS TOTAL) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      {/* ROWS 1-3: 3 PROPERTY CARDS PER ROW (9 CARDS TOTAL) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-start">
         {topListings.map((listing, idx) => (
           <PropertyCard
             key={listing.id ?? `${listing.source}-${listing.source_id}` ?? idx}

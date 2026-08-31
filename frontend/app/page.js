@@ -16,7 +16,7 @@ import useIsMobile from "@/lib/useIsMobile";
 
 export default function Home() {
   const isMobile = useIsMobile();
-  const [filters, setFilters] = useState({ offset: 0, limit: 54 });
+  const [filters, setFilters] = useState({ offset: 0, limit: 57 });
   const [refreshKey, setRefreshKey] = useState(0);
   const [noteOpen, setNoteOpen] = useState(false);
 
@@ -65,7 +65,7 @@ export default function Home() {
       ...prev,
       city,
       offset: 0,
-      limit: 54,
+      limit: 57,
     }));
   };
 
@@ -197,7 +197,6 @@ export default function Home() {
             />
           </div>
 
-          {/* EMD EXPLAINER */}
           {/* EMD EXPLAINER - COLLAPSIBLE */}
           <div className="lot-ticket rounded-sm p-4">
             <button
@@ -268,7 +267,22 @@ export default function Home() {
                     <p><b>Latest</b> flips it, surfacing auctions further out, useful
                     if you want more time to arrange financing or do due
                     diligence before bidding.</p>
+                   </p>
+                   <div className="perf-divider" />
+                    <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
+                    vs. RESIDEX
                   </p>
+                  <p className="text-slate text-sm leading-relaxed font-body">
+                    Compares the auction&apos;s reserve price per sq ft against NHB&apos;s
+                    official RESIDEX housing price index for that city and quarter — a
+                   quick read on whether a lot is priced below or above the going market
+                   rate. A negative % means the reserve price is cheaper than comparable
+                    non-auction property nearby; a positive % means you&apos;d likely pay
+                    more. Only shown for listings with an estimated area in a
+                    RESIDEX-covered city, and it&apos;s a rough citywide signal rather than
+                    a valuation — it doesn&apos;t account for the specific building, floor,
+                    or locality.
+                </p>
                 </div>
 
                 <div className="perf-divider" />
