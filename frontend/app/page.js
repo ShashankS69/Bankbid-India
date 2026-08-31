@@ -18,6 +18,7 @@ export default function Home() {
   const isMobile = useIsMobile();
   const [filters, setFilters] = useState({ offset: 0, limit: 54 });
   const [refreshKey, setRefreshKey] = useState(0);
+  const [noteOpen, setNoteOpen] = useState(false);
 
   const [lots, setLots] = useState([]);
   const [loadingCalendar, setLoadingCalendar] = useState(true);
@@ -197,52 +198,91 @@ export default function Home() {
           </div>
 
           {/* EMD EXPLAINER */}
+          {/* EMD EXPLAINER - COLLAPSIBLE */}
           <div className="lot-ticket rounded-sm p-4">
-            <p className="font-mono text-lg font-extrabold tracking-widest text-gold uppercase mb-2">
-              Note
-            </p>
-            <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
-              What is EMD?
-            </p>
-            <p className="text-slate text-sm leading-relaxed font-body">
-              EMD (Earnest Money Deposit) is a refundable deposit you must pay
-              upfront to be eligible to bid in a bank auction — separate from
-              the property&apos;s reserve price. It&apos;s usually around 10%
-              of the reserve price, but each bank sets its own amount per
-              listing. Use the EMD filter to only see auctions you can
-              actually afford to enter, since a lower reserve price doesn&apos;t
-              always mean a lower upfront deposit.
-            </p>
-          <div className="h-4"></div>
-            <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
-              Save this Search
-            </p>
-            <p className="text-slate text-sm leading-relaxed font-body">
-              Lets users save their desired search criteria and receive notifications when new properties match their filters.
-            </p>
-          <div className="h-4"></div>
-            <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
-              Rental Yield
-            </p>
-            <p className="text-slate text-sm leading-relaxed font-body">
-              Listings in cities covered by NHB RESIDEX also show an estimated
-              rental yield alongside the reserve price it would come in handy if you&apos;re
-              evaluating a property as an investment rather than for personal
-              use, since it points to the ongoing return you could expect
-              relative to what you&apos;d pay to win the auction.
-            </p>
-             <div className="h-4"></div>
-            <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
-             AUCTION SOONEST / LATEST
-            </p>
-            <p className="text-slate text-sm leading-relaxed font-body">
-             <p>Sorts listings by their scheduled auction date:</p>
-             <p><b>Soonest</b> puts auctions happening next at the top, useful if you're
-             ready to bid now and want to see what's closing fastest.</p>
-             <p><b>Latest</b> flips it, surfacing auctions further out, useful
-             if you want more time to arrange financing or do due
-             diligence before bidding.</p>
-            </p>
+            <button
+              onClick={() => setNoteOpen(!noteOpen)}
+              className="flex items-center justify-between w-full gap-2 hover:opacity-80 transition-opacity border-0 bg-transparent"
+            >
+              <p className="font-mono text-lg font-extrabold tracking-widest text-gold uppercase">
+                Notes
+              </p>
+              <span className="text-gold text-3xl leading-none flex items-center -mt-1">
+                {noteOpen ? "^" : "⌄"}
+              </span>
+            </button>
+
+            {noteOpen && (
+              <div className="mt-4 space-y-4">
+                <div>
+                  <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
+                    What is EMD?
+                  </p>
+                  <p className="text-slate text-sm leading-relaxed font-body">
+                    EMD (Earnest Money Deposit) is a refundable deposit you must pay
+                    upfront to be eligible to bid in a bank auction — separate from
+                    the property&apos;s reserve price. It&apos;s usually around 10%
+                    of the reserve price, but each bank sets its own amount per
+                    listing. Use the EMD filter to only see auctions you can
+                    actually afford to enter, since a lower reserve price doesn&apos;t
+                    always mean a lower upfront deposit.
+                  </p>
+                </div>
+
+                <div className="perf-divider" />
+
+                <div>
+                  <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
+                    Save this Search
+                  </p>
+                  <p className="text-slate text-sm leading-relaxed font-body">
+                    Lets users save their desired search criteria and receive notifications when new properties match their filters.
+                  </p>
+                </div>
+
+                <div className="perf-divider" />
+
+                <div>
+                  <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
+                    Rental Yield
+                  </p>
+                  <p className="text-slate text-sm leading-relaxed font-body">
+                    Listings in cities covered by NHB RESIDEX also show an estimated
+                    rental yield alongside the reserve price it would come in handy if you&apos;re
+                    evaluating a property as an investment rather than for personal
+                    use, since it points to the ongoing return you could expect
+                    relative to what you&apos;d pay to win the auction.
+                  </p>
+                </div>
+
+                <div className="perf-divider" />
+
+                <div>
+                  <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
+                    AUCTION SOONEST / LATEST
+                  </p>
+                  <p className="text-slate text-sm leading-relaxed font-body">
+                    <p>Sorts listings by their scheduled auction date:</p>
+                    <p><b>Soonest</b> puts auctions happening next at the top, useful if you're
+                    ready to bid now and want to see what's closing fastest.</p>
+                    <p><b>Latest</b> flips it, surfacing auctions further out, useful
+                    if you want more time to arrange financing or do due
+                    diligence before bidding.</p>
+                  </p>
+                </div>
+
+                <div className="perf-divider" />
+
+                <div>
+                  <p className="font-mono text-xs font-extrabold tracking-widest text-gold uppercase mb-2">
+                    Compare Properties
+                  </p>
+                  <p className="text-slate text-sm leading-relaxed font-body">
+                    Star the properties to compare them side by side — see reserve prices, EMD amounts, RESIDEX comparisons, and estimated rental yields all at once for the properties that have them available.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
           <div>
             <div className="mb-5">
