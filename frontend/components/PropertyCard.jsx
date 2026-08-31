@@ -1,4 +1,7 @@
+"use client";
+
 import { formatINR, titleCase, formatDate } from "@/lib/format";
+import useFavorites from "@/lib/useFavorites";
 
 const TYPE_LABELS = {
   RESIDENTIAL: "Residential",
@@ -15,8 +18,30 @@ const SOURCE_LABELS = {
 
 const CLOSING_SOON_WINDOW_DAYS = 7;
 
+function FavoriteButton({ active, onClick, size = "text-lg" }) {
+  return (
+    <button
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onClick();
+      }}
+      aria-label={active ? "Remove from favorites" : "Add to favorites"}
+      aria-pressed={active}
+      className={`${size} leading-none transition-colors ${
+        active ? "text-gold" : "text-slate-dim hover:text-gold"
+      }`}
+    >
+      {active ? "★" : "☆"}
+    </button>
+  );
+}
+
 export default function PropertyCard({ listing, compact = false }) {
+  const { isFavorite, toggleFavorite } = useFavorites();
+
   const {
+    id,
     property_id,
     bank_name,
     property_type,
@@ -36,6 +61,8 @@ export default function PropertyCard({ listing, compact = false }) {
     previous_price,
     price_changed_at,
   } = listing;
+
+  const favorited = isFavorite(id);
 
   const typeLabel = TYPE_LABELS[property_type?.toUpperCase()] || titleCase(property_type) || "Property";
   const sourceLabel = SOURCE_LABELS[source?.toLowerCase()] || source;
@@ -117,6 +144,7 @@ export default function PropertyCard({ listing, compact = false }) {
             </h3>
           </div>
           <div className="shrink-0 flex flex-col items-end gap-1">
+            <FavoriteButton active={favorited} onClick={() => toggleFavorite(listing)} size="text-base" />
             {isExpired ? (
               <span className="font-mono text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded-sm border border-red-800/60 text-red-200 bg-red-900/30">
                 Passed
@@ -192,6 +220,7 @@ export default function PropertyCard({ listing, compact = false }) {
           </h3>
         </div>
         <div className="shrink-0 flex flex-col items-end gap-1.5">
+          <FavoriteButton active={favorited} onClick={() => toggleFavorite(listing)} />
           {isExpired ? (
             <span className="font-mono text-[10px] uppercase tracking-wide px-2 py-1 rounded-sm border border-red-800/60 text-red-200 bg-red-900/30">
               Passed

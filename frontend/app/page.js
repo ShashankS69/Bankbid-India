@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 import FilterBar from "@/components/FilterBar";
 import ListingGrid from "@/components/ListingGrid";
@@ -182,10 +183,18 @@ export default function Home() {
           className="w-full min-w-0 flex flex-col gap-10"
           aria-label="Auction calendar and map"
         >
-          {/* FETCH LATEST BUTTON */}
-          <FetchLatestButton
-            onDone={() => setRefreshKey((k) => k + 1)}
-          />
+          {/* COMPARE + FETCH LATEST BUTTONS */}
+          <div className="flex gap-3">
+            <Link
+              href="/compare"
+              className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest px-4 py-2 rounded-sm border border-gold text-gold hover:bg-gold hover:text-ledger transition-colors"
+            >
+              ★ Compare Properties
+            </Link>
+            <FetchLatestButton
+              onDone={() => setRefreshKey((k) => k + 1)}
+            />
+          </div>
 
           {/* EMD EXPLAINER */}
           <div className="lot-ticket rounded-sm p-4">
