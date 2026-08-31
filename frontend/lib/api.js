@@ -6,8 +6,8 @@ export const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://127.0.0.1:80
  * Fetch listings with optional filters.
  * Matches GET /api/listings in app/routers/listings.py exactly:
  * city, state, property_type, bank_name, source, min_price, max_price,
- * max_emd, price_availability, has_rental_yield, sort, limit (default 50,
- * max 500), offset (default 0).
+ * max_emd, price_availability, has_rental_yield, closing_within, sort,
+ * limit (default 50, max 500), offset (default 0).
  * Response shape: { count, listings }.
  */
 export async function fetchListings(filters = {}) {
@@ -23,6 +23,7 @@ export async function fetchListings(filters = {}) {
   if (filters.max_emd) params.set("max_emd", filters.max_emd);   // EMD affordability filter (Feature #2)
   if (filters.price_availability) params.set("price_availability", filters.price_availability);
   if (filters.has_rental_yield) params.set("has_rental_yield", filters.has_rental_yield);   // Rental yield availability filter (Feature #5)
+  if (filters.closing_within) params.set("closing_within", filters.closing_within);   // Closing-soon filter (Feature #6)
   if (filters.sort) params.set("sort", filters.sort);
   params.set("limit", filters.limit || 24);
   params.set("offset", filters.offset || 0);

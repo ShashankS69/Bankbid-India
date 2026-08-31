@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+import datetime
 from dotenv import load_dotenv
 
 from app.residex import get_covered_city_names
@@ -109,6 +110,7 @@ def query_listings(
     max_emd: float | None = None,
     price_availability: str | None = None,
     has_rental_yield: str | None = None,   # "true" | "false" | None
+    closing_within: int | None = None,     # 3 | 7 | 14 | None -- Feature #6
     sort: str | None = None,
     since: str | None = None,   # ISO timestamp — only listings with fetched_at >= this
     limit: int = 50,
@@ -173,9 +175,24 @@ def query_listings(
             # If RESIDEX cache is empty, every listing already qualifies
             # as "without" -- no filter needed.
 
+    # Feature #6 -- closing-soon is its own independent filter (NOT tied
+    # to sort). Restricts to auctions between today and N days from now,
+    # on auction_date_parsed (a clean ISO date column) rather than the raw
+    # auction_date free-text field (e.g. "10 September 2026"), which varies
+    # in format across sources and isn't safe to range-compare directly in
+    # PostgREST. Independent of whatever `sort` the user has chosen.
+    if closing_within in (3, 7, 14):
+        today = datetime.date.today()
+        horizon = today + datetime.timedelta(days=closing_within)
+        params.append(("auction_date_parsed", f"gte.{today.isoformat()}"))
+        params.append(("auction_date_parsed", f"lte.{horizon.isoformat()}"))
+
     sort_map = {
-        "auction_soonest": "auction_date.asc.nullslast",
-        "auction_latest": "auction_date.desc.nullslast",
+        # auction_date is free text (e.g. "10 September 2026") and varies
+        # by source -- sorting it alphabetically is NOT chronological.
+        # auction_date_parsed is the clean ISO date column, safe to sort.
+        "auction_soonest": "auction_date_parsed.asc.nullslast",
+        "auction_latest": "auction_date_parsed.desc.nullslast",
         "latest": "fetched_at.desc",
         "oldest": "fetched_at.asc",
         "price_low": "reserve_price.asc.nullslast",

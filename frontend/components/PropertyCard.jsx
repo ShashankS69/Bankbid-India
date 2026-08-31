@@ -13,6 +13,8 @@ const SOURCE_LABELS = {
   auctiontiger: "auctiontiger.in",
 };
 
+const CLOSING_SOON_WINDOW_DAYS = 7;
+
 export default function PropertyCard({ listing, compact = false }) {
   const {
     property_id,
@@ -21,6 +23,7 @@ export default function PropertyCard({ listing, compact = false }) {
     location,
     reserve_price,
     auction_date,
+    auction_date_parsed,
     emd,
     status,
     state,
@@ -63,6 +66,33 @@ export default function PropertyCard({ listing, compact = false }) {
     return d >= today;
   })();
 
+  // Feature #6 -- days until auction, computed from auction_date_parsed
+  // (a clean ISO date, e.g. "2026-09-10") rather than the raw auction_date
+  // free-text field (e.g. "10 September 2026"), which varies by source
+  // and isn't safe to diff directly.
+  const daysUntilAuction = (() => {
+    if (!auction_date_parsed) return null;
+    const d = new Date(`${auction_date_parsed}T00:00:00`);
+    if (isNaN(d.getTime())) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const diffMs = d.getTime() - today.getTime();
+    return Math.round(diffMs / (1000 * 60 * 60 * 24));
+  })();
+
+  const isClosingSoon =
+    isActive &&
+    daysUntilAuction !== null &&
+    daysUntilAuction >= 0 &&
+    daysUntilAuction <= CLOSING_SOON_WINDOW_DAYS;
+
+  const closingSoonLabel =
+    daysUntilAuction === 0
+      ? "Closing Today"
+      : daysUntilAuction === 1
+      ? "Closing Tomorrow"
+      : `Closing in ${daysUntilAuction} Days`;
+
   const hasPriceCut = previous_price && reserve_price && previous_price > reserve_price;
   const priceCutPct = hasPriceCut
     ? Math.round(((previous_price - reserve_price) / previous_price) * 100)
@@ -86,15 +116,22 @@ export default function PropertyCard({ listing, compact = false }) {
               {typeLabel} · {place || "Undisclosed"}
             </h3>
           </div>
-          {isExpired ? (
-            <span className="shrink-0 font-mono text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded-sm border border-red-800/60 text-red-200 bg-red-900/30">
-              Passed
-            </span>
-          ) : status ? (
-            <span className={`shrink-0 font-mono text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded-sm ${isActive ? 'border-emerald-700 text-emerald-200 bg-emerald-800/30' : 'border-moss/50 text-moss'}`}>
-              {status}
-            </span>
-          ) : null}
+          <div className="shrink-0 flex flex-col items-end gap-1">
+            {isExpired ? (
+              <span className="font-mono text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded-sm border border-red-800/60 text-red-200 bg-red-900/30">
+                Passed
+              </span>
+            ) : status ? (
+              <span className={`font-mono text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded-sm ${isActive ? 'border-emerald-700 text-emerald-200 bg-emerald-800/30' : 'border-moss/50 text-moss'}`}>
+                {status}
+              </span>
+            ) : null}
+            {isClosingSoon && (
+              <span className="font-mono text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded-sm border border-rust/60 text-rust bg-rust/10">
+                {closingSoonLabel}
+              </span>
+            )}
+          </div>
         </header>
 
         <div className="perf-divider" />
@@ -154,15 +191,22 @@ export default function PropertyCard({ listing, compact = false }) {
             {typeLabel} · {place || "Location undisclosed"}
           </h3>
         </div>
-        {isExpired ? (
-          <span className="shrink-0 font-mono text-[10px] uppercase tracking-wide px-2 py-1 rounded-sm border border-red-800/60 text-red-200 bg-red-900/30">
-            Passed
-          </span>
-        ) : status ? (
-          <span className={`shrink-0 font-mono text-[10px] uppercase tracking-wide px-2 py-1 rounded-sm ${isActive ? 'border-emerald-700 text-emerald-200 bg-emerald-800/30' : 'border-moss/50 text-moss'}`}>
-            {status}
-          </span>
-        ) : null}
+        <div className="shrink-0 flex flex-col items-end gap-1.5">
+          {isExpired ? (
+            <span className="font-mono text-[10px] uppercase tracking-wide px-2 py-1 rounded-sm border border-red-800/60 text-red-200 bg-red-900/30">
+              Passed
+            </span>
+          ) : status ? (
+            <span className={`font-mono text-[10px] uppercase tracking-wide px-2 py-1 rounded-sm ${isActive ? 'border-emerald-700 text-emerald-200 bg-emerald-800/30' : 'border-moss/50 text-moss'}`}>
+              {status}
+            </span>
+          ) : null}
+          {isClosingSoon && (
+            <span className="font-mono text-[10px] uppercase tracking-wide px-2 py-1 rounded-sm border border-rust/60 text-rust bg-rust/10">
+              {closingSoonLabel}
+            </span>
+          )}
+        </div>
       </header>
 
       <div className="perf-divider" />

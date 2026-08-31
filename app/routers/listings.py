@@ -136,6 +136,7 @@ def get_listings(
     max_emd: float | None = Query(default=None),
     price_availability: str | None = Query(default=None),
     has_rental_yield: str | None = Query(default=None, description="true | false"),
+    closing_within: int | None = Query(default=None, description="3 | 7 | 14 -- days until auction"),
     sort: str | None = Query(default=None),
     limit: int = Query(default=50, le=500),
     offset: int = Query(default=0),
@@ -149,6 +150,9 @@ def get_listings(
     (null under the same conditions) with an estimated gross rental
     yield vs. the auction reserve price.
     """
+    if closing_within is not None and closing_within not in (3, 7, 14):
+        raise HTTPException(status_code=400, detail="closing_within must be 3, 7, or 14")
+
     results, total = query_listings(
         city=city,
         state=state,
@@ -160,6 +164,7 @@ def get_listings(
         max_emd=max_emd,
         price_availability=price_availability,
         has_rental_yield=has_rental_yield,
+        closing_within=closing_within,
         sort=sort,
         limit=limit,
         offset=offset,

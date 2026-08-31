@@ -23,16 +23,28 @@ const SORT_OPTIONS = [
   { value: "price_high", label: "Price: High → Low" },
 ];
 
+// Shortened labels so this select doesn't need a wide min-width
 const PRICE_AVAILABILITY_OPTIONS = [
   { value: "", label: "All Prices" },
-  { value: "priced", label: "Priced Properties Only" },
-  { value: "on_request", label: "Price on Request Only" },
+  { value: "priced", label: "Priced Only" },
+  { value: "on_request", label: "On Request Only" },
 ];
 
+// Shortened labels so this select doesn't need a wide min-width
 const RENTAL_YIELD_OPTIONS = [
   { value: "", label: "All Properties" },
-  { value: "true", label: "With Rental Yield Estimate" },
-  { value: "false", label: "Without Rental Yield Estimate" },
+  { value: "true", label: "Has Rental Yield" },
+  { value: "false", label: "No Rental Yield" },
+];
+
+// Feature #6 -- own filter, independent of sort. Values are the number
+// of days as a string (matches the `closing_within` query param); ""
+// means no filter (all auctions, regardless of date).
+const CLOSING_SOON_OPTIONS = [
+  { value: "", label: "All Auctions" },
+  { value: "3", label: "Within 3 Days" },
+  { value: "7", label: "Within 7 Days" },
+  { value: "14", label: "Within 14 Days" },
 ];
 
 const BANKS = [
@@ -290,6 +302,7 @@ export default function FilterBar({ filters, onChange }) {
     filters.max_price ||
     filters.price_availability ||
     filters.has_rental_yield ||
+    filters.closing_within ||
     filters.max_emd ||
     filters.sort;
 
@@ -298,7 +311,7 @@ export default function FilterBar({ filters, onChange }) {
       <span className="lot-notch-l" aria-hidden="true" />
       <span className="lot-notch-r" aria-hidden="true" />
 
-      {/* Main filters */}
+      {/* Row 1: State / City / Property type / Bank */}
       <div className="flex flex-col md:flex-row gap-3 md:items-start md:flex-wrap">
         <div className="w-44">
           <Combobox
@@ -352,12 +365,14 @@ export default function FilterBar({ filters, onChange }) {
         </select>
       </div>
 
-      {/* Source + availability + rental yield + sorting */}
-      <div className="flex flex-col md:flex-row gap-3 md:items-start md:flex-wrap">
+      {/* Row 2: Source / Price availability / Rental yield / Closing soon
+          -- flex-1 with a small min-w so all four share the row's width
+          instead of each demanding a large fixed minimum */}
+      <div className="flex flex-row gap-3 flex-wrap">
         <select
           value={filters.source || ""}
           onChange={(e) => set("source", e.target.value)}
-          className="bg-ledger border border-ledger-line rounded-sm px-3 py-2 text-sm text-ink font-body"
+          className="bg-ledger border border-ledger-line rounded-sm px-3 py-2 text-sm text-ink font-body flex-1 min-w-[120px]"
         >
           <option value="">All sources</option>
 
@@ -371,7 +386,7 @@ export default function FilterBar({ filters, onChange }) {
         <select
           value={filters.price_availability || ""}
           onChange={(e) => set("price_availability", e.target.value)}
-          className="bg-ledger border border-ledger-line rounded-sm px-3 py-2 text-sm text-ink font-body min-w-[190px]"
+          className="bg-ledger border border-ledger-line rounded-sm px-3 py-2 text-sm text-ink font-body flex-1 min-w-[120px]"
         >
           {PRICE_AVAILABILITY_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
@@ -383,7 +398,7 @@ export default function FilterBar({ filters, onChange }) {
         <select
           value={filters.has_rental_yield || ""}
           onChange={(e) => set("has_rental_yield", e.target.value)}
-          className="bg-ledger border border-ledger-line rounded-sm px-3 py-2 text-sm text-ink font-body min-w-[210px]"
+          className="bg-ledger border border-ledger-line rounded-sm px-3 py-2 text-sm text-ink font-body flex-1 min-w-[130px]"
         >
           {RENTAL_YIELD_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
@@ -392,6 +407,21 @@ export default function FilterBar({ filters, onChange }) {
           ))}
         </select>
 
+        <select
+          value={filters.closing_within || ""}
+          onChange={(e) => set("closing_within", e.target.value)}
+          className="bg-ledger border border-ledger-line rounded-sm px-3 py-2 text-sm text-ink font-body flex-1 min-w-[130px]"
+        >
+          {CLOSING_SOON_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Row 3: Sort / Price range / EMD */}
+      <div className="flex flex-col md:flex-row gap-3 md:items-start md:flex-wrap">
         <select
           value={filters.sort || "auction_soonest"}
           onChange={(e) => set("sort", e.target.value)}
@@ -403,10 +433,7 @@ export default function FilterBar({ filters, onChange }) {
             </option>
           ))}
         </select>
-      </div>
 
-      {/* Price range + EMD */}
-      <div className="flex flex-col md:flex-row gap-3 md:items-start md:flex-wrap">
         <div className="flex items-start gap-2">
           <PriceInput
             placeholder="Min ₹ (e.g. 5L)"
