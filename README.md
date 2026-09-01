@@ -12,7 +12,8 @@ BankBid India pulls together SARFAESI auction property listings that are otherwi
 ## Screenshot
 
 ![BankBid India screenshot](docs/Screenshot.png)
-
+![BankBid India screenshot](docs/Screenshot_1.png)
+![BankBid India screenshot](docs/Screenshot_2.png)
 ---
 
 ## Features
