@@ -125,7 +125,18 @@ def query_listings(
     ]
 
     if city:
-        params.append(("location", f"ilike.*{city}*"))
+        # FIX: was `ilike.*{city}*` (substring match) -- that silently
+        # matched "Mumbai" against "Navi Mumbai", "Greater Mumbai", etc.,
+        # inflating the filtered count above what the map's per-city
+        # marker showed (the map clusters on an EXACT canonical city
+        # match). `city` here is always one of the exact values from
+        # lib/indiaLocations.js's CITIES_BY_STATE (FilterBar's combobox
+        # only lets the user pick those), so it should be matched exactly.
+        #
+        # `ilike.` (no wildcards) keeps this case-insensitive against
+        # whatever casing is stored in `location`, without matching
+        # substrings the way `ilike.*{city}*` did.
+        params.append(("location", f"ilike.{city}"))
     if state:
         params.append(("state", f"ilike.*{state}*"))
     if property_type:
