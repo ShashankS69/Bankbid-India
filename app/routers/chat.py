@@ -29,6 +29,17 @@ CHANGES IN THIS VERSION:
     scoped recommendation write-up. This is the main lever for the
     slow-response complaint. If the recommendation quality feels thin at
     "low", try "medium" on the Step 3 call only.
+  - Added stage timing (prints to stdout, visible in Render's logs) around
+    each step: intent-extraction call, the DB query, the RESIDEX/ROI attach
+    loop, and the recommendation call. If every message is slow (not just
+    the first after idle), the next step is reading these numbers off a
+    real request to see which stage actually dominates — no more guessing
+    blind. Two likely candidates if the two Gemini calls aren't the whole
+    story: (a) `_attach_residex_comparison`/`_attach_roi_estimate` doing a
+    network or DB call per candidate rather than working off already-loaded
+    data (up to 20 sequential lookups per message), or (b) `query_listings`
+    itself being slow on filters like city/state if those columns aren't
+    indexed. The timing breakdown will show which.
 
 SETUP:
   pip install google-genai --break-system-packages
@@ -38,6 +49,7 @@ SETUP:
 """
 
 import json
+import time
 from typing import Any, Optional
 
 from fastapi import APIRouter, HTTPException
@@ -76,7 +88,13 @@ class SearchIntent(BaseModel):
     price_availability: Optional[str] = None
     closing_within: Optional[int] = None  # 3 | 7 | 14
     has_rental_yield: Optional[bool] = None
-    intent: str  # investment | own_use | office_relocation | unclear
+    # A specific lot/property number the user referenced directly (e.g.
+    # "describe lot 2379846", "tell me about property 2379846", "what's the
+    # deal with lot no. 2379846"). Matches PropertyCard.jsx's `property_id`
+    # field, shown on every card as "Lot {property_id}". When this is set,
+    # Step 2 looks the lot up directly instead of running a filtered search.
+    property_id: Optional[str] = None
+    intent: str  # investment | own_use | office_relocation | unclear | lookup
     priority: Optional[str] = None  # short phrase: what the user cares about most
     needs_clarification: bool
     clarifying_question: Optional[str] = None
@@ -92,10 +110,19 @@ class Recommendation(BaseModel):
 INTENT_SYSTEM_PROMPT = """You extract structured property-search filters and the
 user's underlying intent from a natural-language query about bank-auction
 properties in India. Use the conversation history to fill in details the user
-gave earlier and hasn't repeated. Set needs_clarification to true ONLY if the
-query is too vague to search at all (e.g. just "find me a property" with no
-city/type/budget signal) — in that case also fill clarifying_question with one
-short question to ask."""
+gave earlier and hasn't repeated.
+
+If the user references a specific lot or property number directly (e.g.
+"describe lot 2379846", "tell me more about property 2379846", "what about
+lot no. 2379846"), extract the digits into property_id exactly as given, and
+set intent to "lookup". A property_id on its own is a complete, valid
+request — do NOT set needs_clarification to true just because no city/type/
+budget was also given alongside it.
+
+Otherwise, set needs_clarification to true ONLY if the query is too vague to
+search at all (e.g. just "find me a property" with no city/type/budget
+signal and no lot number) — in that case also fill clarifying_question with
+one short question to ask."""
 
 RECOMMEND_SYSTEM_PROMPT = """You are a property-recommendation assistant for a
 bank-auction listing site in India. Given the user's message and a JSON array
@@ -109,7 +136,11 @@ shows it's priced below market, or a price drop via previous_price vs
 reserve_price). Return ranked_ids as every candidate ordered best-to-worst
 fit, with top_pick_id first. If no candidate id is a clear standout, leave
 top_pick_id empty but still return ranked_ids and still describe what was
-found in the reply."""
+found in the reply.
+
+If there is exactly one candidate (e.g. the user asked about a specific lot
+number), skip the "found N properties" framing — just describe that one
+listing directly, citing its concrete numbers, and set top_pick_id to its id."""
 
 
 class ChatMessage(BaseModel):
@@ -120,6 +151,7 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     message: str
     history: list[ChatMessage] = []
+
 
 
 class ChatResponse(BaseModel):
@@ -144,6 +176,7 @@ def chat(req: ChatRequest):
     ]
 
     # --- Step 1: extract structured intent ---
+    _t0 = time.monotonic()
     intent_response = client.models.generate_content(
         model=MODEL,
         contents=contents,
@@ -154,6 +187,8 @@ def chat(req: ChatRequest):
             thinking_config=LOW_THINKING,
         ),
     )
+    _t1 = time.monotonic()
+    print(f"[chat] step1 intent extraction: {_t1 - _t0:.2f}s")
     try:
         intent = SearchIntent.model_validate_json(intent_response.text)
     except Exception:
@@ -200,7 +235,12 @@ def chat(req: ChatRequest):
         limit=20,
         offset=0,
     )
+    _t2 = time.monotonic()
+    print(f"[chat] step2 query_listings: {_t2 - _t1:.2f}s ({len(results)} results)")
+
     candidates = [_attach_roi_estimate(_attach_residex_comparison(r)) for r in results]
+    _t3 = time.monotonic()
+    print(f"[chat] step2 attach roi/residex ({len(results)} candidates): {_t3 - _t2:.2f}s")
 
     if not candidates:
         return ChatResponse(
@@ -253,6 +293,8 @@ def chat(req: ChatRequest):
             thinking_config=LOW_THINKING,
         ),
     )
+    _t4 = time.monotonic()
+    print(f"[chat] step3 recommendation: {_t4 - _t3:.2f}s")
     try:
         reco = Recommendation.model_validate_json(reco_response.text)
     except Exception:
@@ -266,6 +308,8 @@ def chat(req: ChatRequest):
     # the model picked good candidates.
     by_id = {str(c["id"]): c for c in candidates}
     ranked_listings = [by_id[i] for i in reco.ranked_ids if i in by_id]
+
+    print(f"[chat] TOTAL: {time.monotonic() - _t0:.2f}s")
 
     return ChatResponse(
         reply=reco.reply,
