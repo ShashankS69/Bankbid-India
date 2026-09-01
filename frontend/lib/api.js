@@ -154,3 +154,22 @@ export async function saveSearch(filters, email, phone) {
 
   return res.json();
 }
+
+/**
+ * Send a chat message + prior turns to the AI recommendation feature.
+ * Matches POST /api/chat in app/routers/chat.py.
+ * Response shape: { reply, top_pick_id, top_pick_reasoning, listings }.
+ */
+export async function sendChatMessage(message, history = []) {
+  const res = await fetch(`${API_BASE}/api/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message, history }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Chat request failed: ${res.status}`);
+  }
+
+  return res.json();
+}
